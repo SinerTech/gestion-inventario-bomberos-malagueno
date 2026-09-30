@@ -128,7 +128,7 @@ CREATE TABLE usuario (
   id_rol         INT NOT NULL,
   id_area        INT NOT NULL,
   email_usuario  VARCHAR(100) NOT NULL,
-  password       VARCHAR(60) NOT NULL,
+  password       VARCHAR(128) NOT NULL,
   activo         BOOLEAN NOT NULL DEFAULT TRUE,
   CONSTRAINT fk_usuario_rol
     FOREIGN KEY (id_rol) REFERENCES rol(id_rol)

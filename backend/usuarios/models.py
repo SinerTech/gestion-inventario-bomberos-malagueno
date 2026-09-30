@@ -22,8 +22,8 @@ class Usuario(models.Model):
     nombre_usuario = models.CharField(max_length=50)
     id_rol = models.ForeignKey(Rol, models.DO_NOTHING, db_column='id_rol')
     id_area = models.ForeignKey(Area, models.DO_NOTHING, db_column='id_area')
-    email_usuario = models.CharField(unique=True, max_length=100)
-    password = models.CharField(max_length=60)
+    email_usuario = models.EmailField(unique=True, max_length=100)
+    password = models.CharField(max_length=128)
     activo = models.BooleanField(default=True)
 
     class Meta:
