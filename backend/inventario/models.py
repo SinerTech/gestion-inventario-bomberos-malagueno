@@ -35,7 +35,7 @@ class Categoria(models.Model):
         db_table = 'categoria'
     
     def __str__(self):
-        return f'Categoria: {self.nombre_categoria}'
+        return f"{self.nombre_categoria}"
 
 class AreaCategoria(models.Model):
     id_area_categoria = models.AutoField(primary_key=True)
@@ -48,7 +48,7 @@ class AreaCategoria(models.Model):
         unique_together = (('id_area', 'id_categoria'),)
     
     def __str__(self):
-        return f'ID Relación: {self.id_area_categoria}\n ID Area: {self.id_area}\n ID Categoria: {self.id_categoria}'
+        return f"Área: {self.id_area} - Categoría: {self.id_categoria}"
 
 class Recurso(models.Model):
     id_recurso = models.AutoField(primary_key=True)
@@ -60,7 +60,7 @@ class Recurso(models.Model):
         db_table = 'recurso'
     
     def __str__(self):
-        return f'Recurso: {self.nombre_recurso}'
+        return f"{self.nombre_recurso} ({self.id_categoria})"
 
 class TipoMaterial(models.Model):
     id_tipo_material = models.AutoField(primary_key=True)
@@ -71,7 +71,7 @@ class TipoMaterial(models.Model):
         db_table = 'tipo_material'
     
     def __str__(self):
-        return f'Material: {self.nombre_tipo_material}'
+        return f"{self.nombre_tipo_material}"
 
 class RecursoTipoMaterial(models.Model):
     id_recurso_tipo_material = models.AutoField(primary_key=True)
@@ -84,7 +84,7 @@ class RecursoTipoMaterial(models.Model):
         unique_together = (('id_recurso', 'id_tipo_material'),)
     
     def __str__(self):
-        return f'ID Relación: {self.id_recurso_tipo_material}\n ID Recurso: {self.id_recurso}\n ID Tipo de Material: {self.id_tipo_material}'
+        return f"Recurso: {self.id_recurso} - Material: {self.id_tipo_material}"
 
 class Proveedor(models.Model):
     id_proveedor = models.AutoField(primary_key=True)
@@ -98,7 +98,7 @@ class Proveedor(models.Model):
         db_table = 'proveedor'
     
     def __str__(self):
-        return f'ID Proveedor: {self.id_proveedor}\n Razon Social: {self.razon_social}'
+        return f"{self.razon_social} (CUIT: {self.cuit})"
 
 class UnidadRecurso(models.Model):
     id_unidad_recurso = models.AutoField(primary_key=True)
@@ -121,5 +121,5 @@ class UnidadRecurso(models.Model):
         db_table = 'unidad_recurso'
     
     def __str__(self):
-        return f'ID Unidad: {self.id_unidad_recurso}\n Codigo: {self.codigo_interno}\n '
+        return f"[{self.codigo_interno}] {self.id_recurso} - {self.disponibilidad}"
     

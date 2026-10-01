@@ -32,7 +32,7 @@ class TipoMovimiento(models.Model):
         db_table = 'tipo_movimiento'
     
     def __str__(self):
-        return f'Tipo de Movimiento: {self.nombre_tipo_movimiento}'
+        return f"{self.nombre_tipo_movimiento}"
 
 class Motivo(models.Model):
     id_motivo = models.AutoField(primary_key=True)
@@ -43,7 +43,7 @@ class Motivo(models.Model):
         db_table = 'motivo'
     
     def __str__(self):
-        return f'Motivo: {self.nombre_motivo}'
+        return f"{self.nombre_motivo}"
 
 class MovimientoInventario(models.Model):
     id_movimiento = models.AutoField(primary_key=True)
@@ -66,7 +66,8 @@ class MovimientoInventario(models.Model):
         db_table = 'movimiento_inventario'
     
     def __str__(self):
-        return f'ID Movimiento: {self.id_movimiento}\n'
+        fecha_str = self.fecha_hora_movimiento.strftime('%d/%m/%Y %H:%M') if self.fecha_hora_movimiento else "Sin fecha"
+        return f"[{self.id_tipo_movimiento}] Recurso: {self.id_recurso} - {fecha_str}"
 
 class Alerta(models.Model):
     id_alerta = models.AutoField(primary_key=True)
@@ -85,5 +86,5 @@ class Alerta(models.Model):
         db_table = 'alerta'
 
     def __str__(self):
-        return f'ID Alerta: {self.id_alerta}\n Estado: {self.estado_alerta}'
+        return f"Alerta {self.id_alerta} [{self.estado_alerta}] - Recurso: {self.id_unidad_recurso} ({self.origen})"
     
