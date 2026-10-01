@@ -10,7 +10,7 @@ class Rol(models.Model):
         db_table = 'rol'
     
     def __str__(self):
-        return f'ID: {self.id_rol}\n Rol: {self.nombre_rol}'
+        return f"{self.nombre_rol}"
         
 class Area(models.Model):
     id_area = models.AutoField(primary_key=True)
@@ -21,7 +21,7 @@ class Area(models.Model):
         db_table = 'area'
     
     def __str__(self):
-        return f'ID: {self.id_area}\n Area: {self.nombre_area}'
+        return f"{self.nombre_area}"
 
 class Usuario(models.Model):
     id_usuario = models.AutoField(primary_key=True)
@@ -37,4 +37,4 @@ class Usuario(models.Model):
         db_table = 'usuario'
     
     def __str__(self):
-        return f'ID: {self.id_usuario}\n Nombre: {self.nombre_usuario}\n ID Rol: {self.id_rol}\n ID Area: {self.id_area}'
+        return f"{self.nombre_usuario} ({self.email_usuario})" 
