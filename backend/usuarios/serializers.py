@@ -12,7 +12,7 @@ class AreaSerializer(serializers.ModelSerializer):
         model = Area
         fields = ['id_area', 'nombre_area']
 
-class UserSerializer(serializers.ModelSerializer):
+class UsuarioSerializer(serializers.ModelSerializer):
     rol = RolSerializer(source='id_rol', read_only=True)
     area = AreaSerializer(source='id_area', read_only=True)
     class Meta:

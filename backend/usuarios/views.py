@@ -2,12 +2,12 @@ from django.shortcuts import render
 from rest_framework.views import APIView as ApiView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Rol, Area
-from .serializers import UserSerializer, RolSerializer, AreaSerializer
+from .models import Rol, Area, Usuario
+from .serializers import UsuarioSerializer, RolSerializer, AreaSerializer
 
 class UsuarioView(ApiView):
     def post(self, request):
-        serializer = UserSerializer(data=request.data)
+        serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
             try:
                 serializer.save()
@@ -21,6 +21,9 @@ class UsuarioView(ApiView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        usuarios = Usuario.objects.all()
+        return Response(UsuarioSerializer(usuarios, many=True).data)
 
 class RolView(ApiView):
     def get(self, request):
