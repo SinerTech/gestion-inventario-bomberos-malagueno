@@ -6,6 +6,10 @@ from .models import Rol, Area, Usuario
 from .serializers import UsuarioSerializer, RolSerializer, AreaSerializer
 
 class UsuarioView(ApiView):
+    def get(self, request):
+        usuarios = Usuario.objects.select_related('id_rol', 'id_area').order_by('id_usuario')
+        return Response(UsuarioSerializer(usuarios, many=True).data)
+    
     def post(self, request):
         serializer = UsuarioSerializer(data=request.data)
         if serializer.is_valid():
@@ -21,9 +25,6 @@ class UsuarioView(ApiView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    def get(self, request):
-        usuarios = Usuario.objects.all()
-        return Response(UsuarioSerializer(usuarios, many=True).data)
 
 class RolView(ApiView):
     def get(self, request):
