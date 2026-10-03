@@ -12,6 +12,7 @@ import { UsuarioService } from '../../../../services/usuario/usuario-service';
 import { Rol } from '../../../../models/rol.models';
 import { Area } from '../../../../models/area.models';
 import { UsuarioListado } from '../../../../models/usuario-listado.models';
+import { TitleCasePipe } from '@angular/common';
 
 // Validador del grupo completo: compara las dos contraseñas
 function passwordsIguales(grupo: AbstractControl): ValidationErrors | null {
@@ -30,7 +31,7 @@ function normalizar(texto: string): string {
 }
 
 @Component({
-    imports: [ReactiveFormsModule],
+    imports: [ReactiveFormsModule, TitleCasePipe],
     selector: 'app-gestion-usuario',
     styleUrl: './gestion-usuario.css',
     templateUrl: './gestion-usuario.html',
