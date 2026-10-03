@@ -1,0 +1,186 @@
+<section class="seccion_panel_admin" id="gestion_usuarios">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Usuarios</h1>
+        <button type="button" class="btn btn-primary" (click)="alternarFormulario()">
+            <i class="bi"
+            [class.bi-plus-square-fill]="!mostrarFormulario"
+            [class.bi-x-square-fill]="mostrarFormulario"></i>
+            {{ mostrarFormulario ? 'Cancelar' : 'Añadir nuevo' }}
+        </button>
+    </div>
+
+    @if (mensajeExito) {
+        <div class="alert alert-success">{{ mensajeExito }}</div>
+    }
+
+    @if (mostrarFormulario) {
+        <div class="p-4 mb-4">
+            <h2 class="h4 mb-3">Registrar nuevo usuario</h2>
+
+            @if (erroresServidor.length) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (e of erroresServidor; track $index) {
+                            <li>{{ e }}</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form class="form_panel_admin" [formGroup]="formularioRegistroNuevoUsuario"
+                (ngSubmit)="registrarNuevoUsuario()">
+                <div class="row">
+                    <div class="col-md-12 mb-2 text-start">
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <input type="text" id="nombre" formControlName="nombre"
+                            [class.is-invalid]="Nombre?.invalid && Nombre?.touched">
+                        <div class="invalid-feedback">El nombre es obligatorio (máx. 50 caracteres).</div>
+                    </div>
+
+                    <div class="col-md-6 mb-2 text-start">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" id="email" formControlName="email"
+                            [class.is-invalid]="Email?.invalid && Email?.touched">
+                        <div class="invalid-feedback">
+                            @if (Email?.errors?.['required']) {
+                                El email es obligatorio.
+                            } @else {
+                                Ingresá un email válido.
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 mb-2 text-start">
+                        <label for="rol" class="form-label">Rol</label>
+                        <select class="form-select" id="rol" formControlName="rol"
+                                [class.is-invalid]="Rol?.invalid && Rol?.touched">
+                            <option value="">Seleccionar</option>
+                            @for (r of roles; track r.idRol) {
+                                <option [ngValue]="r.idRol">{{ r.nombreRol }}</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Seleccioná un rol.</div>
+                    </div>
+
+                    <div class="col-md-3 mb-2 text-start">
+                        <label for="area" class="form-label">Área</label>
+                        <select class="form-select" id="area" formControlName="area"
+                                [class.is-invalid]="Area?.invalid && Area?.touched">
+                            <option value="">Seleccionar</option>
+                            @for (a of areas; track a.idArea) {
+                                <option [ngValue]="a.idArea">{{ a.nombreArea }}</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Seleccioná un área.</div>
+                    </div>
+
+                    <div class="col-md-6 mb-2 text-start">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <input type="password" id="password" formControlName="password"
+                            [class.is-invalid]="Password?.invalid && Password?.touched">
+                        <div class="invalid-feedback">
+                            Mínimo 8 caracteres, con mayúscula, minúscula y número.
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3 text-start">
+                        <label for="confirmarPassword" class="form-label">Confirmar contraseña</label>
+                        <input type="password" id="confirmarPassword"
+                            formControlName="confirmarPassword"
+                            [class.is-invalid]="ConfirmarPassword?.touched &&
+                                (ConfirmarPassword?.invalid || formularioRegistroNuevoUsuario.errors?.['noCoinciden'])">
+                        <div class="invalid-feedback">
+                            @if (ConfirmarPassword?.errors?.['required']) {
+                                Confirmá la contraseña.
+                            } @else {
+                                Las contraseñas no coinciden.
+                            }
+                        </div>
+                    </div>
+
+                    <div class="acciones_crud">
+                        <button type="submit" class="btn btn-primary">Registrar usuario</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+
+    <!-- Listado de usuarios -->
+    <div class="container">   
+        <div class="mb-3">
+            <form class="form_panel_admin d-flex flex-column" (submit)="$event.preventDefault(); buscarUsuario(buscador.value)">
+                <div class="col-12 col-md-9">
+                    <label for="buscar_usuario" class="form-label fs-3 text-white">
+                        Buscar Usuario
+                    </label>
+                    <div class="d-flex gap-3 align-items-center w-100">
+                        <input id="buscar_usuario" #buscador name="buscar_usuario" class="mt-4" type="search"
+                            placeholder="Buscar por ID, nombre, email, rol o área..." (search)="buscarUsuario(buscador.value)">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div> 
+    @if (errorListado) {
+        <div class="d-flex justify-content-center my-3 w-100">
+            <div class="alert alert-danger-translucid d-flex align-items-center gap-2 col-11 col-md-5 mb-0" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <div>
+                    {{ errorListado }}
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">ID Usuario</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Rol</th>
+                    <th scope="col">Área</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (usuario of usuariosFiltrados; track usuario.idUsuario) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ usuario.idUsuario }}</td>
+                        <td>{{ usuario.nombreUsuario }}</td>
+                        <td>{{ usuario.emailUsuario }}</td>
+                        <td>{{ usuario.nombreRol }}</td>
+                        <td>{{ usuario.nombreArea }}</td>
+                        <td>
+                            <span class="badge"
+                                [class.bg-success]="usuario.activo"
+                                [class.bg-danger]="!usuario.activo">
+                                {{ usuario.activo ? 'Activo' : 'Inactivo' }}
+                            </span>
+                        </td>
+                        <td class="d-flex flex-row gap-2">
+                            @for (accion of accionesTabla; track accion.icono) {
+                                <button type="button" (click)="ejecutarAccion(accion.icono, usuario)">
+                                    <i [class]="accion.icono"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="7" class="text-center text-white py-4 fs-5">
+                            No se encontraron usuarios.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
