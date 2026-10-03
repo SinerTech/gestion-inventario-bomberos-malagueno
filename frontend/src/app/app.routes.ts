@@ -6,6 +6,8 @@ import { LandingPage } from './pages/landing-page/landing-page';
 import { DashboardSupervisor } from './pages/dashboard/dashboard-supervisor/dashboard-supervisor';
 import { DashboardAdmin } from './pages/dashboard/dashboard-admin/dashboard-admin';
 import { DashboardOperativo } from './pages/dashboard/dashboard-operativo/dashboard-operativo';
+import { GestionUsuario } from './pages/dashboard/dashboard-admin/gestion-usuario/gestion-usuario';
+import { GestionProveedor } from './pages/dashboard/dashboard-admin/gestion-proveedor/gestion-proveedor';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
@@ -25,6 +27,10 @@ export const routes: Routes = [
                 path: 'dashboard-admin',
                 component: DashboardAdmin,
                 data: { rolesPermitidos: ['1'] },
+                children: [
+                    { path: 'gestion-usuario', component: GestionUsuario },
+                    { path: 'gestion-proveedor', component: GestionProveedor}
+                ]
             },
             {
             path: 'dashboard-operativo',
