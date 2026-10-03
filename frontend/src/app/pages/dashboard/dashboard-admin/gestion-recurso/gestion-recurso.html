@@ -1,0 +1,171 @@
+<section class="seccion_panel_admin" id="gestion_recursos">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Recursos</h1>
+        <button type="button" class="btn btn-primary" (click)="alternarFormulario()">
+            <i class="bi"
+            [class.bi-plus-square-fill]="!mostrarFormulario"
+            [class.bi-x-square-fill]="mostrarFormulario"></i>
+            {{ mostrarFormulario ? 'Cancelar' : 'Añadir nuevo' }}
+        </button>
+    </div>
+
+    @if (mensajeExito) {
+        <div class="alert alert-success">{{ mensajeExito }}</div>
+    }
+
+    @if (mostrarFormulario) {
+        <div class="p-4 mb-4">
+            <h2 class="h4 mb-3">Registrar nuevo recurso</h2>
+
+            @if (erroresServidor.length) {
+                <div class="alert alert-danger">
+                    <ul class="mb-0">
+                        @for (e of erroresServidor; track $index) {
+                            <li>{{ e }}</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form class="form_panel_admin" [formGroup]="formularioRegistroNuevoRecurso"
+                (ngSubmit)="registrarNuevoRecurso()" novalidate>
+                <div class="row">
+                    <div class="col-md-7 mb-2 text-start">
+                        <label for="nombre" class="form-label">Nombre del recurso</label>
+                        <input type="text" id="nombre" formControlName="nombre"
+                            placeholder="Ej: Guante ignífugo"
+                            [class.is-invalid]="Nombre?.invalid && Nombre?.touched">
+                        <div class="invalid-feedback">
+                            @if (Nombre?.errors?.['required']) {
+                                El nombre es obligatorio.
+                            } @else if (Nombre?.errors?.['minlength']) {
+                                El nombre debe tener al menos 3 caracteres.
+                            } @else if (Nombre?.errors?.['maxlength']) {
+                                El nombre no puede superar los 60 caracteres.
+                            } @else {
+                                El nombre debe contener al menos una letra.
+                            }
+                        </div>
+                    </div>
+
+                    <div class="col-md-5 mb-2 text-start">
+                        <label for="categoria" class="form-label">Categoría</label>
+                        <select class="form-select" id="categoria" formControlName="categoria"
+                                [class.is-invalid]="Categoria?.invalid && Categoria?.touched">
+                            <option value="">Seleccionar</option>
+                            @for (c of categorias; track c.idCategoria) {
+                                <option [ngValue]="c.idCategoria">{{ c.nombreCategoria }}</option>
+                            }
+                        </select>
+                        <div class="invalid-feedback">Seleccioná una categoría.</div>
+                    </div>
+
+                    <div class="col-md-12 mb-3 text-start">
+                        <label class="form-label">Tipos de material (opcional)</label>
+                        <div class="d-flex flex-wrap gap-3">
+                            @for (t of tiposMaterial; track t.idTipoMaterial) {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                        [id]="'tipo_material_' + t.idTipoMaterial"
+                                        [checked]="estaSeleccionado(t.idTipoMaterial)"
+                                        (change)="alternarTipoMaterial(t.idTipoMaterial, $any($event.target).checked)">
+                                    <label class="form-check-label" [for]="'tipo_material_' + t.idTipoMaterial">
+                                        {{ t.nombreTipoMaterial }}
+                                    </label>
+                                </div>
+                            } @empty {
+                                <small>No hay tipos de material cargados.</small>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="acciones_crud">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-plus-lg"></i>
+                            Registrar recurso
+                        </button>
+                        <button type="button" class="btn btn-secondary" (click)="limpiarFormulario()">
+                            <i class="bi bi-arrow-repeat"></i>
+                            Limpiar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+
+    <!-- Listado de recursos -->
+    <div class="container">
+        <div class="mb-3">
+            <form class="form_panel_admin d-flex flex-column" (submit)="$event.preventDefault(); buscarRecurso(buscador.value)">
+                <div class="col-12 col-md-9">
+                    <label for="buscar_recurso" class="form-label fs-3 text-white">
+                        Buscar Recurso
+                    </label>
+                    <div class="d-flex gap-3 align-items-center w-100">
+                        <input id="buscar_recurso" #buscador name="buscar_recurso" class="mt-4" type="search"
+                            placeholder="Buscar por ID, recurso, categoría o material..."
+                            (search)="buscarRecurso(buscador.value)">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    @if (errorListado) {
+        <div class="d-flex justify-content-center my-3 w-100">
+            <div class="alert alert-danger-translucid d-flex align-items-center gap-2 col-11 col-md-5 mb-0" role="alert">
+                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                <div>
+                    {{ errorListado }}
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="table-responsive">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">ID Recurso</th>
+                    <th scope="col">Recurso</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Tipos de material</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (recurso of recursosFiltrados; track recurso.idRecurso) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ recurso.idRecurso }}</td>
+                        <td>{{ recurso.nombreRecurso }}</td>
+                        <td>{{ recurso.nombreCategoria }}</td>
+                        <td>
+                            @for (tipo of recurso.tiposMaterial; track tipo.idTipoMaterial) {
+                                <span class="badge bg-secondary me-1">{{ tipo.nombreTipoMaterial }}</span>
+                            } @empty {
+                                -
+                            }
+                        </td>
+                        <td class="d-flex flex-row gap-2">
+                            @for (accion of accionesTabla; track accion.icono) {
+                                <button type="button" (click)="ejecutarAccion(accion.icono, recurso)">
+                                    <i [class]="accion.icono"></i>
+                                </button>
+                            }
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="5" class="text-center text-white py-4 fs-5">
+                            No se encontraron recursos.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
