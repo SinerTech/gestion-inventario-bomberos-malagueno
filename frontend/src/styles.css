@@ -1,1 +1,1153 @@
 /* You can add global styles to this file, and also import other style files */
+/* ================================================= */
+/* ================= RESET GENERAL ================= */
+/* ================================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+section {
+  scroll-margin-top: 90px;
+}
+
+/* ================================================= */
+/* ================= VARIABLES BASE ================ */
+/* ================================================= */
+
+:root {
+  --altura-cabecera: 70px;
+  --transicion: 0.3s ease;
+  --sombra: 0 10px 25px rgba(0, 0, 0, 0.15);
+  --sidebar-width: 260px;
+  --header-height: 70px;
+  --transition: 0.3s ease;
+  --shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* ================================================= */
+/* ===================== MODO OSCURO =============== */
+/* ================================================= */
+
+body.dark-mode {
+  --color-fondo: #0f172a;
+  --color-fondo-secundario: #111827;
+  --color-lateral: #1e293b;
+  --color-tarjeta: #1f2937;
+  --color-borde: #334155;
+  --color-texto: #f8fafc;
+  --color-texto-secundario: #cbd5e1;
+  --color-primario: #f97316;
+  --color-hover: rgba(255, 255, 255, 0.04);
+}
+
+/* ================================================= */
+/* ======================== BODY =================== */
+/* ================================================= */
+
+.body_quienes_somos {
+  min-height: 100vh;
+  padding-top: var(--altura-cabecera);
+  background: linear-gradient(
+    180deg,
+    var(--color-fondo-secundario),
+    var(--color-fondo)
+  );
+  color: var(--color-texto);
+  transition: var(--transicion);
+  display: flex;
+  flex-direction: column;
+}
+
+.main-layout-contenido {
+  flex: 1 0 auto;
+}
+
+.footer_quienes_somos {
+  flex-shrink: 0;
+}
+
+/* ================================================= */
+/* ======================= CABECERA ================ */
+/* ================================================= */
+
+.header_quienes_somos {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--altura-cabecera);
+  background-color: var(--color-lateral);
+  border-bottom: 1px solid var(--color-borde);
+  z-index: 1000;
+}
+
+.navbar_global {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+}
+
+.home_quienes_somos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--color-texto);
+}
+
+.home_quienes_somos img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.home_quienes_somos span {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+/* ================================================= */
+/* ================== MENU NAVEGACION =========== */
+/* ================================================= */
+
+.acciones_header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+}
+
+.acciones_header a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--color-texto-secundario);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: var(--transicion);
+}
+
+.acciones_header a:hover {
+  background-color: var(--color-hover);
+  color: var(--color-texto);
+  transform: translateY(-2px);
+}
+
+a.active {
+  background-color: var(--color-primario);
+  color: white;
+}
+
+/* HAMBURGUESA */
+
+.navbar-toggler {
+  border: none;
+  background: transparent;
+  padding: 8px;
+}
+
+.navbar-toggler:focus,
+.navbar-toggler:active,
+.navbar-toggler:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.navbar-toggler i {
+  color: var(--color-primario);
+  font-size: 1.7rem;
+}
+
+/* MENÚ RESPONSIVO */
+
+@media (max-width: 991.98px) {
+
+  .navbar-collapse {
+    margin-top: 15px;
+    padding: 15px;
+    background-color: #0f172a; /* fondo oscuro */
+    border-radius: 16px;
+  }
+
+  .acciones_header {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .acciones_header li {
+    width: 100%;
+  }
+
+  .acciones_header a {
+    width: 100%;
+    justify-content: center;
+  }
+
+}
+/* ================================================= */
+/* ========================= CONTENIDO ============= */
+/* ================================================= */
+
+.contenido_quienes_somos {
+  max-width: 12000px;
+  margin: 0 auto;
+  padding: 25px;
+}
+
+/* ================================================= */
+/* ================ SECCION PRESENTACION =========== */
+/* ================================================= */
+
+.seccion_hero {
+  margin-bottom: 30px;
+  padding: 50px 35px;
+  border-radius: 22px;
+  background-color: var(--color-tarjeta);
+  border: 1px solid var(--color-borde);
+  box-shadow: var(--sombra);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: var(--transicion);
+}
+
+.seccion_hero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background:
+    radial-gradient(
+      circle at 30% 20%,
+      rgba(4, 1, 19, 0.06) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      circle at 70% 80%,
+      rgba(253, 106, 0, 0.04) 0%,
+      transparent 50%
+    );
+  pointer-events: none;
+}
+
+.badge_hero {
+  display: inline-block;
+  padding: 8px 20px;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  background-color: rgba(249, 115, 22, 0.12);
+  color: var(--color-primario);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  margin-bottom: 20px;
+}
+
+.button_c {
+  font-size: 1rem;
+  padding: 15px 25px;
+}
+
+.button_c:hover {
+  transform: translateY(-2px);
+  transition: var(--transicion);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+}
+
+.button_c:active {
+  transform: translateY(1px);
+  background-color: var(--color-primario);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  color: var(--color-texto);
+}
+
+.seccion_hero h1 {
+  font-size: 2.4rem;
+  margin-bottom: 15px;
+  position: relative;
+}
+
+.seccion_hero h1 span {
+  color: var(--color-primario);
+}
+
+.descripcion_hero {
+  max-width: 650px;
+  margin: 30px auto;
+  line-height: 1.8;
+  color: var(--color-texto-secundario);
+  font-size: 1rem;
+  position: relative;
+}
+
+.descripcion_hero strong {
+  color: var(--color-primario);
+}
+
+.logo_hero {
+  margin-top: 30px;
+  position: relative;
+}
+
+.logo_hero img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 25px rgba(249, 115, 22, 0.3));
+  animation: float-logo 4s ease-in-out infinite;
+}
+
+@keyframes float-logo {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* ================================================= */
+/* =============          Cards        ============= */
+/* ================================================= */
+
+.seccion_info {
+  margin-bottom: 30px;
+  padding: 35px;
+  border-radius: 22px;
+  background-color: var(--color-tarjeta);
+  border: 1px solid var(--color-borde);
+  box-shadow: var(--sombra);
+  transition: var(--transicion);
+}
+
+.seccion_info h2 {
+  margin-bottom: 25px;
+  color: var(--color-texto);
+  font-size: 1.5rem;
+  text-align: center;
+}
+
+.grilla_valores {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 22px;
+}
+
+.card_valor {
+  padding: 28px 24px;
+  border-radius: 18px;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.01)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  transition: var(--transicion);
+}
+
+.card_valor:hover {
+  transform: translateY(-5px);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.15);
+}
+
+.icono_card_valor {
+  font-size: 2.2rem;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.card_valor h3 {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+  color: var(--color-primario);
+}
+
+.card_valor p {
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--color-texto-secundario);
+}
+
+/* ================================================= */
+/* ================ SECCION EQUIPO ================= */
+/* ================================================= */
+
+.seccion_equipo {
+  margin-bottom: 30px;
+  padding: 35px;
+  border-radius: 22px;
+  background-color: var(--color-tarjeta);
+  border: 1px solid var(--color-borde);
+  box-shadow: var(--sombra);
+  transition: var(--transicion);
+}
+
+.seccion_equipo h2 {
+  margin-bottom: 10px;
+  color: var(--color-texto);
+  font-size: 1.5rem;
+}
+
+.subtitulo_equipo {
+  margin-bottom: 30px;
+  color: var(--color-texto-secundario);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.grilla_equipo {
+  display: grid;
+  gap: 22px;
+}
+
+.grilla_equipo_lideres {
+  grid-template-columns: repeat(2, 1fr);
+  max-width: 680px;
+  margin: 0 auto 28px;
+}
+
+.grilla_equipo_devs {
+  grid-template-columns: repeat(3, 1fr);
+  max-width: 1020px;
+  margin: 0 auto;
+}
+
+/* ================================================= */
+/* ============== TARJETAS DE MIEMBRO ============== */
+/* ================================================= */
+
+.card_miembro {
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.03),
+    rgba(255, 255, 255, 0.01)
+  );
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: var(--transicion);
+  cursor: default;
+}
+
+.card_miembro:hover {
+  transform: translateY(-5px);
+  border-color: rgba(249, 115, 22, 0.4);
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.15);
+}
+
+.foto_miembro {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+}
+
+.foto_miembro img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+  display: block;
+}
+
+.foto_miembro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 50%,
+    rgba(31, 41, 55, 0.95) 100%
+  );
+  opacity: 0.6;
+}
+
+.info_miembro {
+  padding: 20px 18px 22px;
+  text-align: center;
+}
+
+.info_miembro h3 {
+  font-size: 1.05rem;
+  margin-bottom: 6px;
+}
+
+.rol_miembro {
+  display: inline-block;
+  padding: 4px 14px;
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  background-color: rgba(249, 115, 22, 0.12);
+  color: var(--color-primario);
+  margin-bottom: 12px;
+}
+
+.bio_miembro {
+  font-size: 0.83rem;
+  color: var(--color-texto-secundario);
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+
+/* ================================================= */
+/* ========================= PIE DE PAGINA ========= */
+/* ================================================= */
+
+.footer_quienes_somos {
+  padding: 25px;
+  text-align: center;
+  background-color: var(--color-lateral);
+  border-top: 1px solid var(--color-borde);
+  color: var(--color-texto-secundario);
+}
+
+.footer_quienes_somos img {
+  height: 35px;
+  margin-bottom: 10px;
+  object-fit: contain;
+}
+
+.footer_quienes_somos p {
+  font-size: 0.85rem;
+  margin-bottom: 5px;
+}
+
+.footer_quienes_somos span {
+  color: var(--color-primario);
+  font-weight: bold;
+}
+
+/* ================================================= */
+/* ======================== SCROLL ================= */
+/* ================================================= */
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-fondo);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-borde);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primario);
+}
+
+/* ================================================= */
+/* ======================= RESPONSIVE ============== */
+/* ================================================= */
+
+@media (max-width: 1024px) {
+  .grilla_equipo_devs {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .contenido_quienes_somos {
+    padding: 18px;
+  }
+
+  .seccion_hero {
+    padding: 35px 24px;
+  }
+
+  .seccion_hero h1 {
+    font-size: 1.8rem;
+  }
+
+  .seccion_info,
+  .seccion_equipo {
+    padding: 24px;
+  }
+
+  .grilla_valores {
+    grid-template-columns: 1fr;
+  }
+
+  .grilla_equipo_lideres {
+    max-width: 100%;
+  }
+
+  .grilla_equipo_devs {
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  }
+
+  .acciones_header {
+    gap: 4px;
+  }
+
+  .acciones_header a {
+    padding: 8px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .home_quienes_somos span {
+    display: none;
+  }
+
+  .seccion_hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .grilla_equipo_lideres,
+  .grilla_equipo_devs {
+    grid-template-columns: 1fr;
+  }
+
+  .acciones_header a span {
+    display: none;
+  }
+}
+
+/* ================================================= */
+/* ================ dashboard    ================= */
+/* ================================================= */
+
+
+/* ================================================= */
+/* ==================== ESTRUCTURA ================= */
+/* ================================================= */
+
+.body_dashboard_admin {
+  min-height: 100vh;
+  padding-top: var(--header-height);
+  background: linear-gradient(180deg, var(--color-fondo-secundario), var(--color-fondo));
+  color: var(--color-texto);
+  transition: var(--transition);
+}
+
+.header_quienes_somos {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: var(--header-height);
+  background-color: var(--color-lateral);
+  border-bottom: 1px solid var(--color-borde);
+  z-index: 1000;
+}
+
+.navbar_global {
+  height: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+}
+
+.acceso_panel_admin {
+  position: fixed;
+  top: var(--header-height);
+  left: 0;
+  width: var(--sidebar-width);
+  padding: 25px 18px;
+  overflow-y: auto;
+  background-color: var(--color-lateral);
+  border-right: 1px solid var(--color-borde);
+  border-bottom-right-radius: 18px;
+}
+
+.panel_control_admin {
+  margin-left: var(--sidebar-width);
+  padding: 25px;
+}
+
+
+
+
+/* ================================================= */
+/* ==================== ELEMENTOS ================== */
+/* ================================================= */
+
+.home_quienes_somos {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: var(--color-texto);
+}
+
+.home_quienes_somos img {
+  width: 45px;
+  height: 45px;
+  object-fit: contain;
+}
+
+.home_quienes_somos span {
+  font-size: 1.3rem;
+  font-weight: bold;
+}
+
+/* ================================================= */
+/* ====================== MENÚS ==================== */
+/* ================================================= */
+
+.opcion_panel_admin span {
+  display: block;
+  margin-top: 18px;
+  margin-bottom: 12px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-texto-secundario);
+}
+
+.opcion_panel_admin ul {
+  list-style: none;
+}
+
+.opcion_panel_admin li {
+  margin-bottom: 8px;
+}
+
+.opcion_panel_admin a,
+.opciones_generales a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--color-texto);
+  transition: var(--transition);
+}
+
+.opcion_panel_admin a:hover,
+.opciones_generales a:hover {
+  background-color: rgba(249, 115, 22, 0.12);
+  color: var(--color-primario);
+  transform: translateX(5px);
+}
+
+.opciones_generales {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-borde);
+}
+
+.cerrar_sesion {
+  color: #ef4444 !important;
+}
+
+/* ================================================= */
+/* =================== VISTAS / CARDS ============== */
+/* ================================================= */
+
+.inicio_dashboard_admin,
+.seccion_panel_admin {
+  margin-bottom: 30px;
+  padding: 35px;
+  border-radius: 22px;
+  background-color: var(--color-tarjeta);
+  border: 1px solid var(--color-borde);
+  box-shadow: var(--shadow);
+  transition: var(--transition);
+}
+
+.inicio_dashboard_admin {
+  position: relative;
+  overflow: hidden;
+}
+
+.inicio_dashboard_admin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 100%;
+  background-color: var(--color-primario);
+}
+
+.inicio_dashboard_admin h1 {
+  margin: 0 0 25px 0;
+  font-size: 2.1rem;
+  font-weight: 700;
+  color: var(--color-primario);
+}
+
+.inicio_dashboard_admin h2,
+.seccion_panel_admin h2 {
+  margin: 0 0 15px 0;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--color-texto);
+}
+
+.inicio_dashboard_admin p {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--color-texto-secundario);
+}
+
+.inicio_dashboard_admin article {
+  margin-bottom: 30px;
+  padding: 25px;
+  border-radius: 16px;
+  background-color: var(--color-fondo);
+  border: 1px solid var(--color-borde);
+}
+
+.seccion_panel_admin {
+  margin-bottom: 0;
+  padding: 28px;
+}
+
+.seccion_panel_admin h2 {
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--color-borde);
+}
+
+.seccion_panel_admin h3 {
+  margin: 0;
+  padding: 18px 0 8px 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--color-primario);
+  transition: var(--transition);
+}
+
+.seccion_panel_admin h3 i {
+  width: 28px;
+  margin-right: 8px;
+  text-align: center;
+  color: var(--color-primario);
+}
+
+.seccion_panel_admin p {
+  margin: 0 0 8px 36px;
+  line-height: 1.6;
+  color: var(--color-texto-secundario);
+}
+
+.seccion_panel_admin h3:hover {
+  transform: translateX(4px);
+  color: var(--color-primario);
+}
+
+/* ================================================= */
+/* ================= FORMULARIOS =================== */
+/* ================================================= */
+
+/* Bootstrap - Formularios Reactivos */
+.ng-valid:not(form).ng-touched {
+border-left: 5px solid #42A948; /* green */
+}
+.ng-invalid:not(form).ng-touched {
+border-left: 5px solid #a94442; /* red */
+}
+
+.form_panel_admin {
+  display: flex;
+  flex-direction: column;
+}
+
+.form_panel_admin label {
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: var(--color-texto-secundario);
+}
+
+.form_panel_admin input,
+.form_panel_admin select,
+.form_panel_admin textarea {
+  width: 100%;
+  padding: 14px;
+  margin-bottom: 20px;
+  border-radius: 14px;
+  border: 1px solid var(--color-borde);
+  background-color: var(--color-fondo);
+  color: var(--color-texto);
+  transition: var(--transition);
+}
+
+.form_panel_admin textarea {
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form_panel_admin input:focus,
+.form_panel_admin select:focus,
+.form_panel_admin textarea:focus {
+  outline: none;
+  border-color: var(--color-primario);
+  box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.12);
+}
+
+/* ================================================= */
+/* ==================== BOTONES ==================== */
+/* ================================================= */
+
+.acciones_crud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.acciones_crud button,
+.form_panel_admin input[type="submit"],
+.seccion_panel_admin button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: bold;
+  background-color: var(--color-primario);
+  color: white;
+  transition: var(--transition);
+}
+
+.acciones_crud button:hover,
+.form_panel_admin input[type="submit"]:hover,
+.seccion_panel_admin button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(249, 115, 22, 0.25);
+  filter: brightness(1.1);
+}
+
+.acciones_crud button:active,
+.form_panel_admin input[type="submit"]:active,
+.seccion_panel_admin button:active {
+  transform: translateY(1px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+  filter: brightness(0.9);
+}
+
+/* ================================================= */
+/* ===================== TABLAS ==================== */
+/* ================================================= */
+
+table {
+  width: 100%;
+  margin-top: 15px;
+  border-collapse: collapse;
+  overflow: hidden;
+}
+
+thead {
+  background-color: var(--color-lateral);
+}
+
+th, td {
+  padding: 16px;
+  text-align: left;
+}
+
+th {
+  color: var(--color-texto);
+}
+
+td {
+  color: var(--color-texto-secundario);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+tbody tr {
+  transition: var(--transition);
+}
+
+tbody tr:hover {
+  background-color: var(--color-hover);
+}
+
+/* ================================================= */
+/* ================= PAGE 404 IMG ================== */
+/* ================================================= */
+
+.imagen-404 {
+    width: 800px;
+}
+
+section.pagina-404 {
+  background-color: #0f172a;
+}
+
+.descripcion-404 {
+  max-width: 700px;
+}
+
+/* ================================================= */
+/* =================== RESPONSIVE ================== */
+/* ================================================= */
+
+@media (max-width: 1024px) {
+  :root {
+    --sidebar-width: 210px;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --sidebar-width: 180px;
+  }
+
+  .panel_control_admin {
+    padding: 18px;
+  }
+
+  .inicio_dashboard_admin,
+  .seccion_panel_admin {
+    padding: 24px;
+  }
+
+  .acciones_crud {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 600px) {
+  :root {
+    --sidebar-width: 90px;
+  }
+
+  .home_quienes_somos span {
+    display: none;
+  }
+
+  .opcion_panel_admin span {
+    font-size: 0.7rem;
+  }
+
+  .opcion_panel_admin a {
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 0.75rem;
+  }
+
+  .panel_control_admin {
+    margin-left: var(--sidebar-width);
+    padding: 12px;
+  }
+
+  .inicio_dashboard_admin,
+  .seccion_panel_admin {
+    padding: 18px;
+  }
+
+  th, td {
+    padding: 10px;
+    font-size: 0.8rem;
+  }
+}
+
+/* ================================================= */
+/* ============ INTERFACES LOGIN / REGISTRO ======== */
+/* ================================================= */
+
+.login-fondo {
+  --color-fondo: #0f172a;
+  --color-fondo-secundario: #111827;
+  --color-lateral: #1e293b;
+  --color-tarjeta: #1f2937;
+  --color-borde: #334155;
+  --color-texto: #f8fafc;
+  --color-texto-secundario: #cbd5e1;
+  --color-primario: #f97316;
+  --color-hover: rgba(255, 255, 255, 0.04);
+
+  background: linear-gradient(
+    180deg,
+    var(--color-fondo-secundario),
+    var(--color-fondo)
+  );
+
+  color: var(--color-texto);
+}
+
+.login-main-container {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.login-section.container-fluid {
+  height: 100vh;
+  overflow: hidden;
+  background: transparent !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.login-bg-image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.login-form-col {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  margin-bottom: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.login-form-wrapper {
+  max-width: 400px;
+}
+
+/* Estilos de textos */
+.texto-secundario {
+  color: var(--color-texto-secundario);
+}
+
+.texto-informativo {
+  font-size: 0.875rem;
+  color:#0f172a;
+}
+
+.enlace-primario {
+  color: var(--color-primario);
+  text-decoration: none;
+  transition: var(--transicion);
+  cursor: pointer;
+}
+
+.enlace-primario:hover {
+  text-decoration: underline;
+}
