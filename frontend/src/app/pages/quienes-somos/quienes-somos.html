@@ -1,1 +1,77 @@
-<p>quienes-somos works!</p>
+<section class="seccion_hero" id="hero">
+  <span class="badge_hero">
+    <i class="fa-solid fa-rocket"></i>
+    Nuestro Equipo
+  </span>
+
+  <h1>¿Quiénes <span>Somos</span>?</h1>
+
+  <p class="descripcion_hero fs-5">
+    {{ descripcion }}
+  </p>
+
+  <div class="logo_hero">
+    <img src="logo/logo_bvm.png" alt="SinerTech ícono">
+  </div>
+</section>
+
+<!-- MISIÓN / VISIÓN / VALORES -->
+
+<section class="seccion_info" id="mission-vision-values">
+  <h2>Misión, Visión y Valores</h2>
+
+  <div class="grilla_valores">
+    @for (pilar of pilares; track pilar.titulo) {
+      <article class="card_valor">
+        <span class="icono_card_valor">
+          <i class="bi" [class]="pilar.icono"></i>
+        </span>
+        <h3>{{ pilar.titulo }}</h3>
+        <p>{{ pilar.descripcion }}</p>
+      </article>
+    }
+  </div>
+</section>
+
+<!-- NUESTRO EQUIPO -->
+
+<section class="seccion_equipo" id="team">
+  <h2>Nuestro Equipo</h2>
+
+  <p class="subtitulo_equipo">
+    Las personas detrás de cada línea de código, modelo de datos y decisión
+    de diseño de SinerTech.
+  </p>
+
+  <!-- Fila superior: Product Owner y Jefe de Desarrollo (los dos primeros del JSON) -->
+  <div class="grilla_equipo grilla_equipo_lideres">
+    @for (integrante of integrantes.slice(0, 2); track integrante.id) {
+      <article class="card_miembro" [id]="integrante.id">
+        <div class="foto_miembro">
+          <img [src]="integrante.imagen" [alt]="integrante.alt" loading="lazy">
+        </div>
+        <div class="info_miembro">
+          <h3>{{ integrante.nombre }}</h3>
+          <p class="rol_miembro">{{ integrante.rol }}</p>
+          <p class="bio_miembro">{{ integrante.bio }}</p>
+        </div>
+      </article>
+    }
+  </div>
+
+  <!-- Fila inferior: resto del equipo -->
+  <div class="grilla_equipo grilla_equipo_devs">
+    @for (integrante of integrantes.slice(2); track integrante.id) {
+      <article class="card_miembro" [id]="integrante.id">
+        <div class="foto_miembro">
+          <img [src]="integrante.imagen" [alt]="integrante.alt" loading="lazy">
+        </div>
+        <div class="info_miembro">
+          <h3>{{ integrante.nombre }}</h3>
+          <p class="rol_miembro">{{ integrante.rol }}</p>
+          <p class="bio_miembro">{{ integrante.bio }}</p>
+        </div>
+      </article>
+    }
+  </div>
+</section>
