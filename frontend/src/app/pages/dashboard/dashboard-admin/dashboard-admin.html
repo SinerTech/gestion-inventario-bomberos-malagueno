@@ -1,1 +1,42 @@
-<p>dashboard-admin works!</p>
+<div class="dashboard-admin">
+    <aside class="acceso_panel_admin">
+        <div class="opcion_panel_admin">
+            <span>Panel Principal</span>
+            <ul>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-admin/inicio-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" ariaCurrentWhenActive="page">
+                        <i class="bi bi-house-fill"></i>
+                        Inicio
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-admin/gestion-recurso" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-box-seam-fill"></i>
+                        Recursos
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-admin/control-inventario" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-bar-chart-fill"></i>
+                        Inventario
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-admin/gestion-usuario" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-people-fill"></i>
+                        Usuarios
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-admin/gestion-proveedor" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-truck"></i>
+                        Proveedores
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </aside>
+    <main class="panel_control_admin">
+        <router-outlet></router-outlet>
+    </main>
+</div>
