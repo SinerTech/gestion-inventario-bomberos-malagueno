@@ -2,7 +2,7 @@
     <nav class="navbar navbar-expand-lg navbar_global">
         <div class="container-fluid">
             <a class="home_quienes_somos" routerLink="landing-page">
-                <img [src]="logoCuartel" alt="Logo SinerTech">
+                <img [src]="logoCuartel" alt="Logo Asociación Bomberos Voluntarios Malagueño">
                 <span>Bomberos Voluntarios de Malagueño</span>
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuPrincipal" aria-controls="menuPrincipal" aria-expanded="false" aria-label="Abrir menú">
@@ -28,14 +28,6 @@
                             <a routerLink="/login">
                                 <i class="bi bi-box-arrow-in-right"></i>
                                 <span>Login</span>
-                            </a>
-                        </li>
-                    }
-                    @if (!estaAutenticado) {
-                        <li>
-                            <a routerLink="/registro">
-                                <i class="bi bi-person-plus-fill"></i>
-                                <span>Registro</span>
                             </a>
                         </li>
                     }
