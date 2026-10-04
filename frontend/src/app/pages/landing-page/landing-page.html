@@ -1,1 +1,39 @@
-<p>landing-page works!</p>
+<section class="seccion_hero" id="hero">
+  <div class="hero_contenido">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-8 text-center hero_contenido">
+        <h1>
+          Gestión Inteligente de <span>Inventarios</span>
+        </h1>
+        <p class="descripcion_hero">
+          {{ descripcion }}
+        </p>
+        <button class="badge_hero button_c" type="button" (click)="comenzar()">
+          Comenzar
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="seccion_info">
+  <h2>¿Cómo optimiza la plataforma tu día a día?</h2>
+  <div class="grilla_valores">
+    <div class="row g-4 justify-content-center">
+      @for (valor of valores; track valor.titulo) {
+        <div class="col-12 col-md-6 col-lg-3">
+          <article class="card_valor">
+            <span class="icono_card_valor">
+              <i class="bi" [class]="valor.icono"></i>
+            </span>
+
+            <h3>{{ valor.titulo }}</h3>
+
+            <p>
+              {{ valor.descripcion }}
+            </p>
+          </article>
+        </div>
+      }
+    </div>
+  </div>
+</section>
