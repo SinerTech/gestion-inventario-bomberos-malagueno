@@ -5,6 +5,7 @@ import { Usuario } from '../../models/usuario.models';
 import { Rol } from '../../models/rol.models';
 import { Area } from '../../models/area.models';
 import { UsuarioListado } from '../../models/usuario-listado.models';
+import { UsuarioEditado } from '../../models/usuario-editado.models';
 
 // Formas que usa Django (snake_case). Solo se usan dentro de este servicio.
 interface RolApi {
@@ -28,7 +29,7 @@ interface UsuarioApi {
     activo: boolean;
 }
 
-export interface RegistroUsuarioRespuesta {
+interface RespuestaUsuario {
     mensaje: string;
     usuario: UsuarioApi;
 }
@@ -79,7 +80,7 @@ export class UsuarioService {
     // 'activo' no se envía: el backend lo deja en true por defecto
     registro(
         nuevoUsuario: Omit<Usuario, 'idUsuario' | 'activo'>
-    ): Observable<RegistroUsuarioRespuesta> {
+    ): Observable<RespuestaUsuario> {
         // Traducción de camelCase (Angular) a snake_case (Django)
         const body = {
             nombre_usuario: nuevoUsuario.nombreUsuario,
@@ -89,7 +90,31 @@ export class UsuarioService {
             id_area: nuevoUsuario.idArea,
         };
         return this.http
-            .post<RegistroUsuarioRespuesta>(`${this.apiUrl}/usuarios/`, body)
+            .post<RespuestaUsuario>(`${this.apiUrl}/usuarios/`, body)
+            .pipe(catchError(this.handleError));
+    }
+
+    modificar(idUsuario: number, usuario: UsuarioEditado): Observable<RespuestaUsuario> {
+        const body: Record<string, unknown> = {
+            nombre_usuario: usuario.nombreUsuario,
+            email_usuario: usuario.emailUsuario,
+            id_rol: usuario.idRol,
+            id_area: usuario.idArea,
+            activo: usuario.activo,
+        };
+        // Solo viaja la contraseña si se escribió una nueva
+        if (usuario.password) {
+            body['password'] = usuario.password;
+        }
+
+        return this.http
+            .put<RespuestaUsuario>(`${this.apiUrl}/usuarios/${idUsuario}/`, body)
+            .pipe(catchError(this.handleError));
+    }
+
+    darDeBaja(idUsuario: number): Observable<{ mensaje: string }> {
+        return this.http
+            .delete<{ mensaje: string }>(`${this.apiUrl}/usuarios/${idUsuario}/`)
             .pipe(catchError(this.handleError));
     }
 
