@@ -24,6 +24,12 @@ export interface QuienesSomosContenido {
     equipo: Integrante[];
 }
 
+export interface AccionTabla {
+    id: string;
+    icono: string;
+    titulo: string;
+}
+
 export interface DashboardContenido {
     rol: string;
     descripcion: string;
@@ -32,7 +38,7 @@ export interface DashboardContenido {
     accesosDirectos: { icono: string; etiqueta: string; descripcion: string; link: string }[];
     botonesFiltro: string[];
     encabezadosTabla: string[];
-    accionesTabla: { icono: string }[];
+    accionesTabla: AccionTabla[];
 }
 
 export interface Contenido {
