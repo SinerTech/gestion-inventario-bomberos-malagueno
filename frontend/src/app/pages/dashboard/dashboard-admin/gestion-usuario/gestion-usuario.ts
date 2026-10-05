@@ -13,6 +13,9 @@ import { Rol } from '../../../../models/rol.models';
 import { Area } from '../../../../models/area.models';
 import { UsuarioListado } from '../../../../models/usuario-listado.models';
 import { TitleCasePipe } from '@angular/common';
+import { UsuarioEditado } from '../../../../models/usuario-editado.models';
+import { ContenidoService } from '../../../../services/contenido/contenido-service';
+import { AccionTabla } from '../../../../models/contenido.models';
 
 // Validador del grupo completo: compara las dos contraseñas
 function passwordsIguales(grupo: AbstractControl): ValidationErrors | null {
@@ -38,10 +41,13 @@ function normalizar(texto: string): string {
 })
 export class GestionUsuario implements OnInit {
     mostrarFormulario = false;
+    modoEdicion = false;
+    idUsuarioEditar: number | null = null;
     roles: Rol[] = [];
     areas: Area[] = [];
     mensajeExito = '';
     erroresServidor: string[] = [];
+    accionesTabla: AccionTabla[] = []; 
 
     // Listado
     usuarios: UsuarioListado[] = [];
@@ -49,15 +55,15 @@ export class GestionUsuario implements OnInit {
     terminoBusqueda = '';
     errorListado = '';
 
-    // Hardcodeado
-    accionesTabla = [
-        { icono: 'bi bi-pencil-fill' },
-        { icono: 'bi bi-trash-fill' },
-    ];
-
     private fb = inject(FormBuilder);
     private usuarioService = inject(UsuarioService);
     private cdr = inject(ChangeDetectorRef);
+    private contenidoService = inject(ContenidoService);
+    
+    private readonly validadoresPassword = [
+        Validators.minLength(8),
+        Validators.pattern(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/),
+    ];
 
     formularioRegistroNuevoUsuario: FormGroup = this.fb.group(
         {
@@ -75,6 +81,7 @@ export class GestionUsuario implements OnInit {
                 ],
             ],
             confirmarPassword: ['', Validators.required],
+            activo: [true],
         },
         { validators: passwordsIguales }
     );
@@ -109,6 +116,14 @@ export class GestionUsuario implements OnInit {
         });
 
         this.cargarUsuarios();
+
+        this.contenidoService.obtenerDashboard('administrador').subscribe({
+            next: (dashboard) => {
+                this.accionesTabla = dashboard.accionesTabla;
+                this.cdr.detectChanges();
+            },
+            error: (error) => console.error('Error al cargar las acciones:', error),
+        });
     }
 
     cargarUsuarios(): void {
@@ -155,25 +170,28 @@ export class GestionUsuario implements OnInit {
         );
     }
 
-    // Por ahora solo identifica la acción; la lógica llega en las HU de editar y eliminar
-    ejecutarAccion(icono: string, usuario: UsuarioListado): void {
-        switch (icono) {
-            case 'bi bi-pencil-fill':
-                console.log('Modificar usuario:', usuario);
+    ejecutarAccion(idAccion: string, usuario: UsuarioListado): void {
+        switch (idAccion) {
+            case 'editar':
+                this.iniciarEdicion(usuario);
                 break;
-            case 'bi bi-trash-fill':
-                console.log('Eliminar usuario:', usuario);
+            case 'eliminar':
+                this.darDeBaja(usuario);
                 break;
         }
     }
 
     alternarFormulario(): void {
-        this.mostrarFormulario = !this.mostrarFormulario;
+        if (this.mostrarFormulario) {
+            this.cerrarFormulario(); // cancelar: vuelve al estado inicial
+        } else {
+            this.mostrarFormulario = true;
+        }
         this.mensajeExito = '';
         this.erroresServidor = [];
     }
 
-    registrarNuevoUsuario(): void {
+    guardarUsuario(): void {
         if (this.formularioRegistroNuevoUsuario.invalid) {
             this.formularioRegistroNuevoUsuario.markAllAsTouched();
             return;
@@ -181,6 +199,14 @@ export class GestionUsuario implements OnInit {
         this.mensajeExito = '';
         this.erroresServidor = [];
 
+        if (this.modoEdicion) {
+            this.modificarUsuario();
+        } else {
+            this.registrarNuevoUsuario();
+        }
+    }
+
+    private registrarNuevoUsuario(): void {
         const nuevoUsuario = {
             nombreUsuario: this.Nombre?.value,
             idRol: this.Rol?.value,
@@ -190,24 +216,124 @@ export class GestionUsuario implements OnInit {
         };
 
         this.usuarioService.registro(nuevoUsuario).subscribe({
+            next: (respuesta) => this.finalizarOperacion(respuesta.mensaje),
+            error: (error: HttpErrorResponse | Error) => this.mostrarErrores(error),
+        });
+    }
+
+    private modificarUsuario(): void {
+        if (this.idUsuarioEditar === null) return;
+
+        const usuario: UsuarioEditado = {
+            nombreUsuario: this.Nombre?.value,
+            emailUsuario: this.Email?.value,
+            idRol: this.Rol?.value,
+            idArea: this.Area?.value,
+            activo: this.Activo?.value,
+        };
+
+        // La contraseña solo viaja si el administrador escribió una nueva
+        if (this.Password?.value) {
+            usuario.password = this.Password.value;
+        }
+
+        this.usuarioService.modificar(this.idUsuarioEditar, usuario).subscribe({
+            next: (respuesta) => this.finalizarOperacion(respuesta.mensaje),
+            error: (error: HttpErrorResponse | Error) => this.mostrarErrores(error),
+        });
+    }
+
+    private finalizarOperacion(mensaje: string): void {
+        this.mensajeExito = mensaje;
+        this.cerrarFormulario();
+        this.cargarUsuarios(); // refresca la tabla
+        this.cdr.detectChanges();
+    }
+
+    private mostrarErrores(error: HttpErrorResponse | Error): void {
+        if (error instanceof HttpErrorResponse) {
+            // Django devuelve { campo: ["mensaje", ...] } al fallar una validación
+            this.erroresServidor = Object.values(error.error).flat().map(String);
+        } else {
+            this.erroresServidor = [error.message];
+        }
+        this.cdr.detectChanges();
+    }
+
+    private cerrarFormulario(): void {
+        this.mostrarFormulario = false;
+        this.modoEdicion = false;
+        this.idUsuarioEditar = null;
+        this.configurarPasswordObligatoria(true); // vuelve al modo alta
+        this.formularioRegistroNuevoUsuario.reset({ rol: '', area: '', activo: true });
+    }
+
+    // Cambia los validadores de la contraseña según el modo (alta u edición)
+    private configurarPasswordObligatoria(obligatoria: boolean): void {
+        const validadores = obligatoria
+            ? [Validators.required, ...this.validadoresPassword]
+            : this.validadoresPassword;
+
+        this.Password?.setValidators(validadores);
+        this.ConfirmarPassword?.setValidators(obligatoria ? [Validators.required] : []);
+        this.Password?.updateValueAndValidity();
+        this.ConfirmarPassword?.updateValueAndValidity();
+    }
+
+    private irAlFormulario(): void {
+        setTimeout(() => {
+            document
+                .getElementById('formulario_usuario')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    }
+
+    iniciarEdicion(usuario: UsuarioListado): void {
+        this.modoEdicion = true;
+        this.idUsuarioEditar = usuario.idUsuario;
+        this.mostrarFormulario = true;
+        this.mensajeExito = '';
+        this.erroresServidor = [];
+
+        this.configurarPasswordObligatoria(false);
+
+        // reset con valores: carga los datos y limpia los estados "tocado"
+        this.formularioRegistroNuevoUsuario.reset({
+            nombre: usuario.nombreUsuario,
+            email: usuario.emailUsuario,
+            rol: usuario.idRol,
+            area: usuario.idArea,
+            password: '',
+            confirmarPassword: '',
+            activo: usuario.activo,
+        });
+
+        this.cdr.detectChanges();
+        this.irAlFormulario();
+    }
+
+    darDeBaja(usuario: UsuarioListado): void {
+        if (!usuario.activo) {
+            this.mensajeExito = '';
+            this.erroresServidor = [];
+            this.errorListado = `${usuario.nombreUsuario} ya está dado de baja.`;
+            return;
+        }
+
+        const confirmado = confirm(
+            `¿Dar de baja a ${usuario.nombreUsuario}? Podrá reactivarse más adelante.`
+        );
+        if (!confirmado) return;
+
+        this.errorListado = '';
+        this.usuarioService.darDeBaja(usuario.idUsuario).subscribe({
             next: (respuesta) => {
                 this.mensajeExito = respuesta.mensaje;
-                this.formularioRegistroNuevoUsuario.reset({ rol: '', area: '' });
-                this.mostrarFormulario = false;
-                this.cargarUsuarios(); 
+                this.cargarUsuarios();
                 this.cdr.detectChanges();
             },
-            error: (error: HttpErrorResponse | Error) => {
-                if (error instanceof HttpErrorResponse) {
-                    // Django devuelve { campo: ["mensaje", ...] } al fallar una validación
-                    this.erroresServidor = Object.values(error.error).flat().map(String);
-                    this.cdr.detectChanges();
-                } else {
-                    this.erroresServidor = [error.message];
-                    this.cdr.detectChanges();
-                }
-            },
-            complete: () => {
+            error: (error: Error) => {
+                this.errorListado = error.message;
                 this.cdr.detectChanges();
             },
         });
@@ -230,5 +356,8 @@ export class GestionUsuario implements OnInit {
     }
     get ConfirmarPassword() {
         return this.formularioRegistroNuevoUsuario.get('confirmarPassword');
+    }
+    get Activo() {
+        return this.formularioRegistroNuevoUsuario.get('activo');
     }
 }

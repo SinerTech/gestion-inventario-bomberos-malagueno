@@ -14,8 +14,10 @@
     }
 
     @if (mostrarFormulario) {
-        <div class="p-4 mb-4">
-            <h2 class="h4 mb-3">Registrar nuevo usuario</h2>
+        <div class="p-4 mb-4" id="formulario_usuario">
+            <h2 class="h4 mb-3">
+                {{ modoEdicion ? 'Modificar usuario' : 'Registrar nuevo usuario' }}
+            </h2>
 
             @if (erroresServidor.length) {
                 <div class="alert alert-danger">
@@ -28,7 +30,7 @@
             }
 
             <form class="form_panel_admin" [formGroup]="formularioRegistroNuevoUsuario"
-                (ngSubmit)="registrarNuevoUsuario()">
+                (ngSubmit)="guardarUsuario()">
                 <div class="row">
                     <div class="col-md-12 mb-2 text-start">
                         <label for="nombre" class="form-label">Nombre completo</label>
@@ -75,31 +77,46 @@
                     </div>
 
                     <div class="col-md-6 mb-2 text-start">
-                        <label for="password" class="form-label">Contraseña</label>
+                        <label for="password" class="form-label">
+                            {{ modoEdicion ? 'Nueva contraseña (opcional)' : 'Contraseña' }}
+                        </label>
                         <input type="password" id="password" formControlName="password"
                             [class.is-invalid]="Password?.invalid && Password?.touched">
                         <div class="invalid-feedback">
                             Mínimo 8 caracteres, con mayúscula, minúscula y número.
                         </div>
+                        @if (modoEdicion) {
+                        <div class="col-md-12 mt-1 mb-4 text-start">
+                            <small class="text-secondary d-block">Deja el campo vacío para conservar la contraseña actual.</small>
+                        </div>
+                        }
                     </div>
-
+                    
                     <div class="col-md-6 mb-3 text-start">
                         <label for="confirmarPassword" class="form-label">Confirmar contraseña</label>
-                        <input type="password" id="confirmarPassword"
-                            formControlName="confirmarPassword"
-                            [class.is-invalid]="ConfirmarPassword?.touched &&
+                        <input type="password" id="confirmarPassword" formControlName="confirmarPassword" [class.is-invalid]="ConfirmarPassword?.touched &&
                                 (ConfirmarPassword?.invalid || formularioRegistroNuevoUsuario.errors?.['noCoinciden'])">
                         <div class="invalid-feedback">
                             @if (ConfirmarPassword?.errors?.['required']) {
-                                Confirmá la contraseña.
+                            Confirmá la contraseña.
                             } @else {
-                                Las contraseñas no coinciden.
+                            Las contraseñas no coinciden.
                             }
                         </div>
                     </div>
-
+                    @if (modoEdicion) {
+                    <div class="col-md-12 mb-3 text-start">
+                        <div class="form-check d-flex align-items-center gap-2 p-0 mb-4">
+                            <label class="form-check-label mb-0" for="activo">Usuario activo (sigue en el cuartel):</label>
+                            <input class="form-check-input w-auto d-inline-block m-0 ms-2" type="checkbox" id="activo" formControlName="activo">
+                        </div>
+                    </div>
+                    }
+                    
                     <div class="acciones_crud">
-                        <button type="submit" class="btn btn-primary">Registrar usuario</button>
+                        <button type="submit" class="btn btn-primary">
+                            {{ modoEdicion ? 'Guardar cambios' : 'Registrar usuario' }}
+                        </button>
                     </div>
                 </div>
             </form>
@@ -168,16 +185,16 @@
                             </span>
                         </td>
                         <td class="d-flex flex-row gap-2">
-                            @for (accion of accionesTabla; track accion.icono) {
-                                <button type="button" (click)="ejecutarAccion(accion.icono, usuario)">
-                                    <i [class]="accion.icono"></i>
-                                </button>
+                            @for (accion of accionesTabla; track accion.id) {
+                            <button type="button" [title]="accion.titulo" (click)="ejecutarAccion(accion.id, usuario)">
+                                <i [class]="accion.icono"></i>
+                            </button>
                             }
                         </td>
                     </tr>
                 } @empty {
                     <tr>
-                        <td colspan="7" class="text-center text-white py-4 fs-5">
+                        <td colspan="8" class="text-center text-white py-4 fs-5">
                             No se encontraron usuarios.
                         </td>
                     </tr>
