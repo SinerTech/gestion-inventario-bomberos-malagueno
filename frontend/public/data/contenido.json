@@ -138,7 +138,10 @@
         "Asignado a",
         "Fecha de alta"
       ],
-      "accionesTabla": [{ "icono": "bi bi-pencil-fill" }, { "icono": "bi bi-trash-fill" }]
+      "accionesTabla": [
+        { "id": "editar", "icono": "bi bi-pencil-fill", "titulo": "Modificar" },
+        { "id": "eliminar", "icono": "bi bi-trash-fill", "titulo": "Dar de baja" }
+      ]
     },
     "supervisor": {
       "rol": "Responsable de área",
