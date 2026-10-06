@@ -14,8 +14,10 @@
     }
 
     @if (mostrarFormulario) {
-        <div class="p-4 mb-4">
-            <h2 class="h4 mb-3">Registrar nuevo recurso</h2>
+        <div class="p-4 mb-4" id="formulario_recurso">
+            <h2 class="h4 mb-3">
+                {{ modoEdicion ? 'Modificar recurso' : 'Registrar nuevo recurso' }}
+            </h2>
 
             @if (erroresServidor.length) {
                 <div class="alert alert-danger">
@@ -28,7 +30,7 @@
             }
 
             <form class="form_panel_admin" [formGroup]="formularioRegistroNuevoRecurso"
-                (ngSubmit)="registrarNuevoRecurso()" novalidate>
+                (ngSubmit)="guardarRecurso()" novalidate>
                 <div class="row">
                     <div class="col-md-7 mb-2 text-start">
                         <label for="nombre" class="form-label">Nombre del recurso</label>
@@ -81,8 +83,8 @@
 
                     <div class="acciones_crud">
                         <button type="submit" class="btn btn-primary">
-                            <i class="bi bi-plus-lg"></i>
-                            Registrar recurso
+                            <i class="bi" [class.bi-plus-lg]="!modoEdicion" [class.bi-check-lg]="modoEdicion"></i>
+                            {{ modoEdicion ? 'Guardar cambios' : 'Registrar recurso' }}
                         </button>
                         <button type="button" class="btn btn-secondary" (click)="limpiarFormulario()">
                             <i class="bi bi-arrow-repeat"></i>
@@ -151,10 +153,10 @@
                             }
                         </td>
                         <td class="d-flex flex-row gap-2">
-                            @for (accion of accionesTabla; track accion.icono) {
-                                <button type="button" (click)="ejecutarAccion(accion.icono, recurso)">
-                                    <i [class]="accion.icono"></i>
-                                </button>
+                            @for (accion of accionesTabla; track accion.id) {
+                            <button type="button" [title]="accion.titulo" (click)="ejecutarAccion(accion.id, recurso)">
+                                <i [class]="accion.icono"></i>
+                            </button>
                             }
                         </td>
                     </tr>

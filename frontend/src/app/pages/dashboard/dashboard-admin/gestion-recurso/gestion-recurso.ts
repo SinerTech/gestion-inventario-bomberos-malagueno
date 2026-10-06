@@ -12,6 +12,8 @@ import { RecursoService } from '../../../../services/recurso/recurso-service';
 import { Recurso } from '../../../../models/recurso.models';
 import { Categoria } from '../../../../models/categoria.models';
 import { TipoMaterial } from '../../../../models/tipo-material.models';
+import { AccionTabla } from '../../../../models/contenido.models';
+import { ContenidoService } from '../../../../services/contenido/contenido-service';
 
 // El nombre debe contener al menos una letra (no solo números o símbolos)
 function nombreValido(control: AbstractControl): ValidationErrors | null {
@@ -39,10 +41,13 @@ function normalizar(texto: string): string {
 })
 export class GestionRecurso implements OnInit {
     mostrarFormulario = false;
+    modoEdicion = false; 
+    idRecursoEditar: number | null = null;   
     categorias: Categoria[] = [];
     tiposMaterial: TipoMaterial[] = [];
     mensajeExito = '';
     erroresServidor: string[] = [];
+    accionesTabla: AccionTabla[] = []; 
 
     // Listado
     recursos: Recurso[] = [];
@@ -50,15 +55,10 @@ export class GestionRecurso implements OnInit {
     terminoBusqueda = '';
     errorListado = '';
 
-    // Hardcodeado
-    accionesTabla = [
-        { icono: 'bi bi-pencil-fill' },
-        { icono: 'bi bi-trash-fill' },
-    ];
-
     private fb = inject(FormBuilder);
     private recursoService = inject(RecursoService);
     private cdr = inject(ChangeDetectorRef);
+    private contenidoService = inject(ContenidoService)
 
     formularioRegistroNuevoRecurso: FormGroup = this.fb.group({
         nombre: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(60), nombreValido]],
@@ -88,8 +88,15 @@ export class GestionRecurso implements OnInit {
                 this.cdr.detectChanges();
             },
         });
-
         this.cargarRecursos();
+
+        this.contenidoService.obtenerDashboard('administrador').subscribe({
+            next: (dashboard) => {
+                this.accionesTabla = dashboard.accionesTabla;
+                this.cdr.detectChanges();
+            },
+            error: (error) => console.error('Error al cargar las acciones:', error),
+        });
     }
 
     cargarRecursos(): void {
@@ -132,20 +139,23 @@ export class GestionRecurso implements OnInit {
         );
     }
 
-    // Por ahora solo identifica la acción; la lógica llega en las HU de editar y eliminar
-    ejecutarAccion(icono: string, recurso: Recurso): void {
-        switch (icono) {
-            case 'bi bi-pencil-fill':
-                console.log('Modificar recurso:', recurso);
+    ejecutarAccion(idAccion: string, recurso: Recurso): void {
+        switch (idAccion) {
+            case 'editar':
+                this.iniciarEdicion(recurso);
                 break;
-            case 'bi bi-trash-fill':
-                console.log('Eliminar recurso:', recurso);
+            case 'eliminar':
+                this.eliminarRecurso(recurso);
                 break;
         }
     }
 
     alternarFormulario(): void {
-        this.mostrarFormulario = !this.mostrarFormulario;
+        if (this.mostrarFormulario) {
+            this.cerrarFormulario();
+        } else {
+            this.mostrarFormulario = true;
+        }
         this.mensajeExito = '';
         this.erroresServidor = [];
     }
@@ -175,7 +185,7 @@ export class GestionRecurso implements OnInit {
         this.TiposMaterial?.setValue(nuevos);
     }
 
-    registrarNuevoRecurso(): void {
+    guardarRecurso(): void {
         if (this.formularioRegistroNuevoRecurso.invalid) {
             this.formularioRegistroNuevoRecurso.markAllAsTouched();
             return;
@@ -183,29 +193,93 @@ export class GestionRecurso implements OnInit {
         this.mensajeExito = '';
         this.erroresServidor = [];
 
-        const nuevoRecurso = {
+        const datos = {
             nombreRecurso: String(this.Nombre?.value).trim(),
             idCategoria: this.Categoria?.value,
             idsTipoMaterial: this.TiposMaterial?.value ?? [],
         };
 
-        this.recursoService.registro(nuevoRecurso).subscribe({
+        const peticion =
+            this.modoEdicion && this.idRecursoEditar !== null
+                ? this.recursoService.modificar(this.idRecursoEditar, datos)
+                : this.recursoService.registro(datos);
+
+        peticion.subscribe({
+            next: (respuesta) => this.finalizarOperacion(respuesta.mensaje),
+            error: (error: HttpErrorResponse | Error) => this.mostrarErrores(error),
+        });
+    }
+
+    private finalizarOperacion(mensaje: string): void {
+        this.mensajeExito = mensaje;
+        this.cerrarFormulario();
+        this.cargarRecursos(); // refresca la tabla
+        this.cdr.detectChanges();
+    }
+
+    private mostrarErrores(error: HttpErrorResponse | Error): void {
+        if (error instanceof HttpErrorResponse) {
+            this.erroresServidor = Object.values(error.error).flat().map(String);
+        } else {
+            this.erroresServidor = [error.message];
+        }
+        this.cdr.detectChanges();
+    }
+
+    private cerrarFormulario(): void {
+        this.mostrarFormulario = false;
+        this.modoEdicion = false;
+        this.idRecursoEditar = null;
+        this.limpiarFormulario();
+    }
+
+    iniciarEdicion(recurso: Recurso): void {
+        this.modoEdicion = true;
+        this.idRecursoEditar = recurso.idRecurso;
+        this.mostrarFormulario = true;
+        this.mensajeExito = '';
+        this.erroresServidor = [];
+
+        // reset con valores: carga los datos y limpia los estados "tocado"
+        this.formularioRegistroNuevoRecurso.reset({
+            nombre: recurso.nombreRecurso,
+            categoria: recurso.idCategoria,
+            tiposMaterial: recurso.tiposMaterial.map((t) => t.idTipoMaterial),
+        });
+        this.cdr.detectChanges();
+        this.irAlFormulario();
+    }
+
+    eliminarRecurso(recurso: Recurso): void {
+        const confirmado = confirm(
+            `¿Eliminar el recurso "${recurso.nombreRecurso}"? Esta acción no se puede deshacer.`
+        );
+        if (!confirmado) return;
+
+        this.mensajeExito = '';
+        this.errorListado = '';
+        this.recursoService.eliminar(recurso.idRecurso).subscribe({
             next: (respuesta) => {
                 this.mensajeExito = respuesta.mensaje;
-                this.limpiarFormulario();
-                this.mostrarFormulario = false;
-                this.cargarRecursos(); // refresca la tabla con el recurso nuevo
+                this.cargarRecursos();
                 this.cdr.detectChanges();
             },
             error: (error: HttpErrorResponse | Error) => {
-                if (error instanceof HttpErrorResponse) {
-                    // Django devuelve { campo: ["mensaje", ...] } al fallar una validación
-                    this.erroresServidor = Object.values(error.error).flat().map(String);
-                } else {
-                    this.erroresServidor = [error.message];
-                }
+                // El 409 llega como HttpErrorResponse con { error: "mensaje" }
+                this.errorListado =
+                    error instanceof HttpErrorResponse
+                        ? Object.values(error.error).flat().map(String).join(' ')
+                        : error.message;
                 this.cdr.detectChanges();
             },
+        });
+    }
+
+    private irAlFormulario(): void {
+        setTimeout(() => {
+            document
+                .getElementById('formulario_recurso')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     }
 
