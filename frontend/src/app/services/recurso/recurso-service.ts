@@ -24,15 +24,20 @@ interface RecursoApi {
     tipos_material: TipoMaterialApi[];
 }
 
-export interface RegistroRecursoRespuesta {
+interface RegistroRecursoRespuesta {
     mensaje: string;
     recurso: RecursoApi;
 }
 
-export interface NuevoRecurso {
+interface NuevoRecurso {
     nombreRecurso: string;
     idCategoria: number;
     idsTipoMaterial: number[];
+}
+
+interface ModificarRecursoRespuesta {
+    mensaje: string;
+    recurso: RecursoApi;
 }
 
 @Injectable({
@@ -91,15 +96,32 @@ export class RecursoService {
             id_categoria: nuevoRecurso.idCategoria,
             ids_tipo_material: nuevoRecurso.idsTipoMaterial,
         };
-        return this.http
-            .post<RegistroRecursoRespuesta>(`${this.apiUrl}/recursos/`, body)
-            .pipe(catchError(this.handleError));
+        return this.http.post<RegistroRecursoRespuesta>(`${this.apiUrl}/recursos/`, body).pipe(
+            catchError(this.handleError)
+        );
     }
 
+    modificar(idRecurso: number, recurso: NuevoRecurso): Observable<ModificarRecursoRespuesta> {
+    const body = {
+        nombre_recurso: recurso.nombreRecurso,
+        id_categoria: recurso.idCategoria,
+        ids_tipo_material: recurso.idsTipoMaterial,
+    };
+    return this.http.put<ModificarRecursoRespuesta>(`${this.apiUrl}/recursos/${idRecurso}/`, body).pipe(
+        catchError(this.handleError)
+        );
+    }
+
+    eliminar(idRecurso: number): Observable<{ mensaje: string }> {
+        return this.http.delete<{ mensaje: string }>(`${this.apiUrl}/recursos/${idRecurso}/`).pipe(
+            catchError(this.handleError)
+        );
+    }
+    
     private handleError(error: HttpErrorResponse) {
-        // Los 400 son errores de validación de Django (duplicado, categoría
-        // inexistente, etc.): se dejan pasar para mostrarlos en pantalla
-        if (error.status === 400 && typeof error.error === 'object') {
+        // 400: errores de validación de Django (duplicado, categoría inexistente, etc.)
+        // 409: errores de conflicto (ej. recurso con unidades asociadas).
+        if ((error.status === 400 || error.status === 409) && typeof error.error === 'object') {
             return throwError(() => error);
         }
         if (error.status === 0) {
