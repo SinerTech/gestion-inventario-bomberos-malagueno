@@ -139,3 +139,18 @@ class RecursoSerializer(serializers.ModelSerializer):
                 for id_tipo in ids_tipos
             ])
         return recurso
+    
+    def update(self, instance, validated_data):
+        # En un PUT, si el cliente no manda ids_tipo_material, se interpreta como "ninguno"
+        ids_tipos = validated_data.pop('ids_tipo_material', [])
+        with transaction.atomic():
+            # super().update asigna nombre_recurso e id_categoria y hace save()
+            instance = super().update(instance, validated_data)
+            # Reemplazo de la tabla intermedia: se borran las filas viejas y se crean las nuevas
+            RecursoTipoMaterial.objects.filter(id_recurso=instance).delete()
+            RecursoTipoMaterial.objects.bulk_create([
+                RecursoTipoMaterial(id_recurso=instance, id_tipo_material_id=id_tipo)
+                for id_tipo in ids_tipos
+            ])
+        return instance
+    
