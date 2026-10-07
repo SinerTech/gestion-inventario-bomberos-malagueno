@@ -12,6 +12,7 @@ import { GestionRecurso } from './pages/dashboard/dashboard-admin/gestion-recurs
 import { InicioDashboard } from './shared/inicio-dashboard/inicio-dashboard';
 import { ControlInventario } from './shared/control-inventario/control-inventario';
 import { Pagina404 } from './pages/pagina-404/pagina-404';
+import { RegistroIngreso } from './shared/registro-ingreso/registro-ingreso';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
@@ -42,6 +43,7 @@ export const routes: Routes = [
                     { path: 'gestion-proveedor', component: GestionProveedor },
                     { path: 'gestion-recurso', component: GestionRecurso },
                     { path: 'control-inventario', component: ControlInventario},
+                    { path: 'registro-ingreso', component: RegistroIngreso},
                 ]
             },
             {
