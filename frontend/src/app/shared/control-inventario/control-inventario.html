@@ -1,1 +1,158 @@
-<p>control-inventario works!</p>
+<section class="seccion_panel_admin" id="control_inventario">
+    <h1>Control de Inventario</h1>
+
+    <!-- ========== Tabla 1: resumen por recurso ========== -->
+    <h2 class="mt-4">Resumen por recurso</h2>
+
+    @if (errorResumen) {
+        <div class="alert alert-danger">{{ errorResumen }}</div>
+    }
+
+    <div class="table-responsive">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">ID</th>
+                    <th scope="col">Recurso</th>
+                    <th scope="col">Categoría</th>
+                    <th scope="col">Total</th>
+                    <th scope="col">Disponibles</th>
+                    <th scope="col">En uso</th>
+                    <th scope="col">De baja</th>
+                    <th scope="col">No operativas</th>
+                    <th scope="col">Unidades</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (recurso of resumen; track recurso.idRecurso) {
+                    <tr class="border-bottom border-white"
+                        [class.table-active]="recursoSeleccionado?.idRecurso === recurso.idRecurso">
+                        <td>{{ recurso.idRecurso }}</td>
+                        <td>{{ recurso.nombreRecurso }}</td>
+                        <td>{{ recurso.nombreCategoria }}</td>
+                        <td><strong>{{ recurso.totalUnidades }}</strong></td>
+                        <td>{{ recurso.disponibles }}</td>
+                        <td>{{ recurso.enUso }}</td>
+                        <td>{{ recurso.deBaja }}</td>
+                        <td>
+                            @if (recurso.noOperativas > 0) {
+                                <span class="badge bg-danger">{{ recurso.noOperativas }}</span>
+                            } @else {
+                                0
+                            }
+                        </td>
+                        <td>
+                            <button type="button" [disabled]="recurso.totalUnidades === 0"
+                                title="Ver las unidades de este recurso"
+                                (click)="verUnidadesDe(recurso)">
+                                <i class="bi bi-eye-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="9" class="text-center text-white py-4 fs-5">
+                            No hay recursos registrados.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== Tabla 2: unidades ========== -->
+    <h2 class="mt-5" id="tabla_unidades">Unidades</h2>
+
+    <div class="container">
+        <div class="mb-3">
+            <form class="form_panel_admin d-flex flex-column"
+                (submit)="$event.preventDefault(); buscarUnidad(buscador.value)">
+                <div class="col-12 col-md-9">
+                    <label for="buscar_unidad" class="form-label fs-3 text-white">
+                        Buscar Unidad
+                    </label>
+                    <div class="d-flex gap-3 align-items-center w-100">
+                        <input id="buscar_unidad" #buscador name="buscar_unidad" class="mt-4" type="search"
+                            placeholder="Buscar por código, recurso, marca, serie, proveedor o responsable..."
+                            (search)="buscarUnidad(buscador.value)">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-search me-1"></i>
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="acciones_crud mb-3">
+            @for (boton of botonesFiltro; track boton) {
+                <button type="button" class="btn btn-secondary"
+                    [class.active]="boton === filtroDisponibilidad"
+                    (click)="filtrarPorDisponibilidad(boton)">
+                    {{ boton }}
+                </button>
+            }
+        </div>
+
+        @if (recursoSeleccionado) {
+            <p class="mb-3">
+                Mostrando unidades de:
+                <span class="badge bg-info text-dark">{{ recursoSeleccionado.nombreRecurso }}</span>
+                <button type="button" class="ms-2" (click)="quitarFiltroRecurso()">
+                    <i class="bi bi-x-lg"></i> Quitar filtro
+                </button>
+            </p>
+        }
+    </div>
+
+    @if (errorUnidades) {
+        <div class="alert alert-danger">{{ errorUnidades }}</div>
+    }
+
+    <div class="table-responsive">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    @for (encabezado of encabezadosUnidades; track encabezado) {
+                        <th scope="col">{{ encabezado }}</th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @for (unidad of unidadesFiltradas; track unidad.idUnidadRecurso) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ unidad.idUnidadRecurso }}</td>
+                        <td>{{ unidad.codigoInterno }}</td>
+                        <td>
+                            {{ unidad.nombreRecurso }}
+                            @if (unidad.medida) {
+                                <small class="d-block">{{ unidad.medida }}</small>
+                            }
+                        </td>
+                        <td>{{ unidad.nombreCategoria }}</td>
+                        <td>{{ unidad.razonSocial }}</td>
+                        <td>
+                            <span class="badge" [class]="estadoClases[unidad.estado] ?? 'bg-light text-dark'">
+                                {{ unidad.estado }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge" [class]="disponibilidadClases[unidad.disponibilidad] ?? 'bg-light text-dark'">
+                                {{ unidad.disponibilidad }}
+                            </span>
+                        </td>
+                        <td>{{ unidad.nombreUsuarioAsignado ?? '-' }}</td>
+                        <td>{{ unidad.fechaAlta | date: 'dd/MM/yyyy HH:mm' }}</td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td [attr.colspan]="encabezadosUnidades.length || 9"
+                            class="text-center text-white py-4 fs-5">
+                            No se encontraron unidades.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
