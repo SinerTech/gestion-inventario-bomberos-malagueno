@@ -42,7 +42,11 @@ export const routes: Routes = [
                     { path: 'gestion-usuario', component: GestionUsuario },
                     { path: 'gestion-proveedor', component: GestionProveedor },
                     { path: 'gestion-recurso', component: GestionRecurso },
-                    { path: 'control-inventario', component: ControlInventario},
+                    { 
+                        path: 'control-inventario', 
+                        component: ControlInventario,
+                        data: { tipoDashboard: 'administrador' },
+                    },
                     { path: 'registro-ingreso', component: RegistroIngreso},
                 ]
             },
