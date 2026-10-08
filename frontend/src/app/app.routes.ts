@@ -13,6 +13,7 @@ import { InicioDashboard } from './shared/inicio-dashboard/inicio-dashboard';
 import { ControlInventario } from './shared/control-inventario/control-inventario';
 import { Pagina404 } from './pages/pagina-404/pagina-404';
 import { RegistroIngreso } from './shared/registro-ingreso/registro-ingreso';
+import { RetiroRecurso } from './pages/dashboard/dashboard-supervisor/retiro-recurso/retiro-recurso';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
@@ -27,6 +28,21 @@ export const routes: Routes = [
                 path: 'dashboard-supervisor',
                 component: DashboardSupervisor,
                 data: { rolesPermitidos: ['2'] },
+                children: [
+                    { path: '', redirectTo: 'inicio-dashboard', pathMatch: 'full' },
+                    {
+                        path: 'inicio-dashboard',
+                        component: InicioDashboard,
+                        data: { tipoDashboard: 'supervisor' },
+                    },
+                    { path: 'retiro-recurso', component: RetiroRecurso },
+                    { path: 'registro-ingreso', component: RegistroIngreso},
+                    { 
+                        path: 'control-inventario', 
+                        component: ControlInventario,
+                        data: { tipoDashboard: 'supervisor' },
+                    },
+                ]
             },
             {
                 path: 'dashboard-admin',
