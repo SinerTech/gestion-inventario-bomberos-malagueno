@@ -1,1 +1,36 @@
-<p>dashboard-supervisor works!</p>
+<aside class="acceso_panel_admin">
+    <div class="opcion_panel_admin">
+        <span>Panel Principal</span>
+        <nav>
+            <ul>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-supervisor/inicio-dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" ariaCurrentWhenActive="page">
+                        <i class="bi bi-house-fill"></i>
+                        Inicio
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-supervisor/registro-ingreso" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-box-seam"></i>
+                        Ingresos
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-supervisor/retiro-recurso" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-backpack2-fill"></i>
+                        Retiros
+                    </a>
+                </li>
+                <li>
+                    <a routerLink="/bomberos-malagueno/dashboard-supervisor/control-inventario" routerLinkActive="active" ariaCurrentWhenActive="page">
+                        <i class="bi bi-boxes"></i>
+                        Inventario
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>
+<main class="panel_control_admin">
+    <router-outlet></router-outlet>
+</main>

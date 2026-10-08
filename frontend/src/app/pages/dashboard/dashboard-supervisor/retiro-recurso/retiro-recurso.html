@@ -1,0 +1,181 @@
+<section class="seccion_panel_admin" id="retiro_recurso">
+    <h1>Retirar Recursos</h1>
+    @if (mensajeExito) {
+        <div class="alert alert-success">
+            <p class="mb-2 text-dark">{{ mensajeExito }}</p>
+            <div class="d-flex flex-wrap gap-2">
+                @for (codigo of codigosRetirados; track codigo) {
+                    <span class="badge bg-secondary">{{ codigo }}</span>
+                }
+            </div>
+        </div>
+    }
+
+    @if (erroresServidor.length) {
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @for (e of erroresServidor; track $index) {
+                    <li>{{ e }}</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- ========== Paso 1: buscar unidades disponibles ========== -->
+    <h2 class="h5 mt-3">1. Elegí las unidades a retirar</h2>
+
+    <div class="form_panel_admin">
+        <div class="row">
+            <div class="col-md-5 mb-2 text-start">
+                <label for="filtro_recurso" class="form-label">Recurso</label>
+                <select class="form-select" id="filtro_recurso"
+                    (change)="seleccionarRecurso($any($event.target).value)">
+                    <option value="">Todos los recursos</option>
+                    @for (r of resumen; track r.idRecurso) {
+                        <option [value]="r.idRecurso">{{ r.nombreRecurso }} ({{ r.disponibles }} disponibles)</option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-7 mb-2 text-start">
+                <label for="buscar_unidad" class="form-label">Buscar por código, medida, marca o serie</label>
+                <input type="search" id="buscar_unidad" placeholder="Ej: R0001-0002"
+                    (input)="buscar($any($event.target).value)">
+            </div>
+        </div>
+    </div>
+
+    <div class="table-responsive mb-4">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">Código interno</th>
+                    <th scope="col">Recurso</th>
+                    <th scope="col">Marca</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Agregar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (unidad of unidadesVisibles.slice(0, limiteFilas); track unidad.idUnidadRecurso) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ unidad.codigoInterno }}</td>
+                        <td>
+                            {{ unidad.nombreRecurso }}
+                            @if (unidad.medida) {
+                                <small class="d-block">{{ unidad.medida }}</small>
+                            }
+                        </td>
+                        <td>{{ unidad.marca ?? '-' }}</td>
+                        <td>
+                            <span class="badge" [class]="estadoClases[unidad.estado] ?? 'bg-light text-dark'">
+                                {{ unidad.estado }}
+                            </span>
+                        </td>
+                        <td>
+                            <button type="button" title="Agregar al retiro" (click)="agregarUnidad(unidad)">
+                                <i class="bi bi-plus-circle-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="5" class="text-center text-white py-4 fs-5">
+                            No hay unidades disponibles con ese criterio.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+        @if (unidadesVisibles.length > limiteFilas) {
+            <small>Mostrando {{ limiteFilas }} de {{ unidadesVisibles.length }}. Refiná la búsqueda para ver el resto.</small>
+        }
+    </div>
+
+    <!-- ========== Paso 2: unidades del retiro ========== -->
+    <h2 class="h5">2. Unidades del retiro ({{ itemsRetiro.length }})</h2>
+
+    <div class="table-responsive mb-4">
+        <table class="table-bordered mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">Código interno</th>
+                    <th scope="col">Recurso</th>
+                    <th scope="col">Estado al retirar</th>
+                    <th scope="col">Quitar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of itemsRetiro; track item.unidad.idUnidadRecurso) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ item.unidad.codigoInterno }}</td>
+                        <td>{{ item.unidad.nombreRecurso }} {{ item.unidad.medida ?? '' }}</td>
+                        <td>
+                            <select class="form-select"
+                                (change)="cambiarEstado(item, $any($event.target).value)">
+                                @for (e of estadosOperativos; track e.valor) {
+                                    <option [value]="e.valor" [selected]="e.valor === item.estadoAlRetirar">
+                                        {{ e.etiqueta }}
+                                    </option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" title="Quitar del retiro"
+                                (click)="quitarUnidad(item.unidad.idUnidadRecurso)">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="4" class="text-center text-white py-3">
+                            Todavía no agregaste unidades.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== Paso 3: quién retira ========== -->
+    <h2 class="h5">3. Quién retira</h2>
+
+    <form class="form_panel_admin" [formGroup]="formularioRetiro"
+        (ngSubmit)="registrarRetiro()" novalidate>
+        <div class="row">
+            <div class="col-md-6 mb-2 text-start">
+                <label for="usuarioRetira" class="form-label">Usuario que retira</label>
+                <select class="form-select" id="usuarioRetira" formControlName="usuarioRetira"
+                    [class.is-invalid]="UsuarioRetira?.invalid && UsuarioRetira?.touched">
+                    <option value="">Seleccionar</option>
+                    @for (u of usuarios; track u.idUsuario) {
+                        <option [ngValue]="u.idUsuario">{{ u.nombreUsuario }} - {{ u.nombreArea }}</option>
+                    }
+                </select>
+                <div class="invalid-feedback">Seleccioná quién retira.</div>
+            </div>
+
+            <div class="col-md-6 mb-2 text-start">
+                <label for="motivo" class="form-label">Motivo (opcional)</label>
+                <select class="form-select" id="motivo" formControlName="motivo">
+                    <option value="">Sin motivo</option>
+                    @for (m of motivos; track m.idMotivo) {
+                        <option [ngValue]="m.idMotivo">{{ m.nombreMotivo }}</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-12 mb-3 text-start">
+                <label for="observaciones" class="form-label">Observaciones (opcional)</label>
+                <textarea id="observaciones" formControlName="observaciones" rows="2"></textarea>
+            </div>
+
+            <div class="acciones_crud">
+                <button type="submit" class="btn btn-primary" [disabled]="enviando || itemsRetiro.length === 0">
+                    <i class="bi bi-box-arrow-up"></i>
+                    {{ enviando ? 'Registrando...' : 'Registrar retiro de ' + itemsRetiro.length + ' unidad(es)' }}
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
