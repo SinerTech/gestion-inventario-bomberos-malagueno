@@ -4,10 +4,11 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import ProtectedError
-from .models import Proveedor, Categoria, TipoMaterial, Recurso, RecursoTipoMaterial
+from django.db.models import Count, Q
+from .models import Proveedor, Categoria, TipoMaterial, Recurso, RecursoTipoMaterial, UnidadRecurso
 from .serializers import (
     ProveedorSerializer, CategoriaSerializer,
-    TipoMaterialSerializer, RecursoSerializer,
+    TipoMaterialSerializer, RecursoSerializer, UnidadRecursoSerializer, ResumenRecursoSerializer
 )
 
 class ProveedorView(APIView):
@@ -121,3 +122,40 @@ class RecursoDetalleView(APIView):
             {"mensaje": "Recurso eliminado correctamente."},
             status=status.HTTP_200_OK,
         )
+
+class ResumenInventarioView(APIView):
+    def get(self, request):
+        recursos = (
+            Recurso.objects
+            .select_related('id_categoria')
+            .annotate(
+                total_unidades=Count('unidadrecurso'),
+                disponibles=Count(
+                    'unidadrecurso', filter=Q(unidadrecurso__disponibilidad='Disponible')
+                ),
+                en_uso=Count(
+                    'unidadrecurso', filter=Q(unidadrecurso__disponibilidad='En Uso')
+                ),
+                de_baja=Count(
+                    'unidadrecurso', filter=Q(unidadrecurso__disponibilidad='De Baja')
+                ),
+                no_operativas=Count(
+                    'unidadrecurso', filter=Q(unidadrecurso__estado__startswith='NoOp')
+                ),
+            )
+            .order_by('nombre_recurso')
+        )
+        return Response(ResumenRecursoSerializer(recursos, many=True).data)
+
+
+class UnidadRecursoView(APIView):
+    def get(self, request):
+        unidades = (
+            UnidadRecurso.objects
+            .select_related(
+                'id_recurso__id_categoria', 'id_proveedor', 'id_usuario_asignado'
+            )
+            .order_by('id_unidad_recurso')
+        )
+        return Response(UnidadRecursoSerializer(unidades, many=True).data)
+    

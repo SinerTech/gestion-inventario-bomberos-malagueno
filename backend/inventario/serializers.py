@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import (
-    Proveedor, Categoria, TipoMaterial, Recurso, RecursoTipoMaterial,
+    Proveedor, Categoria, TipoMaterial, Recurso, RecursoTipoMaterial, UnidadRecurso
 )
 from django.db import transaction
 
@@ -153,4 +153,44 @@ class RecursoSerializer(serializers.ModelSerializer):
                 for id_tipo in ids_tipos
             ])
         return instance
+    
+class ResumenRecursoSerializer(serializers.ModelSerializer):
+    # Los números los calcula la consulta (annotate); el serializer solo los muestra
+    categoria = CategoriaSerializer(source='id_categoria', read_only=True)
+    total_unidades = serializers.IntegerField(read_only=True)
+    disponibles = serializers.IntegerField(read_only=True)
+    en_uso = serializers.IntegerField(read_only=True)
+    de_baja = serializers.IntegerField(read_only=True)
+    no_operativas = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = Recurso
+        fields = [
+            'id_recurso', 'nombre_recurso', 'categoria',
+            'total_unidades', 'disponibles', 'en_uso', 'de_baja', 'no_operativas',
+        ]
+
+
+class UnidadRecursoSerializer(serializers.ModelSerializer):
+    # Campos de solo lectura que vienen de tablas relacionadas
+    nombre_recurso = serializers.CharField(source='id_recurso.nombre_recurso', read_only=True)
+    nombre_categoria = serializers.CharField(
+        source='id_recurso.id_categoria.nombre_categoria', read_only=True
+    )
+    razon_social = serializers.CharField(source='id_proveedor.razon_social', read_only=True)
+    nombre_usuario_asignado = serializers.SerializerMethodField()
+
+    class Meta:
+        model = UnidadRecurso
+        fields = [
+            'id_unidad_recurso', 'codigo_interno', 'id_recurso', 'nombre_recurso',
+            'nombre_categoria', 'medida', 'marca', 'numero_serie_fabricante',
+            'fecha_alta', 'valor', 'fondo', 'id_proveedor', 'razon_social',
+            'estado', 'disponibilidad', 'id_usuario_asignado',
+            'nombre_usuario_asignado', 'observaciones',
+        ]
+
+    def get_nombre_usuario_asignado(self, obj):
+        # Una unidad disponible no tiene a nadie asignado: devuelve null
+        return obj.id_usuario_asignado.nombre_usuario if obj.id_usuario_asignado else None
     
