@@ -108,10 +108,10 @@
       ],
       "accesosDirectos": [
         {
-          "icono": "bi-people-fill",
-          "etiqueta": "Gestionar Usuarios",
-          "descripcion": "Registrar y consultar los usuarios que acceden al sistema.",
-          "link": "/bomberos-malagueno/dashboard-admin/gestion-usuario"
+          "icono": "bi-box-arrow-in-down",
+          "etiqueta": "Registrar Ingresos",
+          "descripcion": "Dar de alta unidades de un recurso con su proveedor y datos de compra.",
+          "link": "/bomberos-malagueno/dashboard-admin/registro-ingreso"
         },
         {
           "icono": "bi-truck",
