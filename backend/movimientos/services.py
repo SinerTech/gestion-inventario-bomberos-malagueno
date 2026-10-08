@@ -74,3 +74,64 @@ def registrar_ingreso(datos):
     ])
 
     return unidades
+
+class RetiroInvalido(Exception):
+    """El retiro no se puede hacer por el estado actual de las unidades."""
+
+
+@transaction.atomic
+def registrar_retiro(datos):
+    tipo_retiro = TipoMovimiento.objects.get(nombre_tipo_movimiento__iexact='Retiro')
+    retira = datos['id_usuario_retira']
+    registra = datos['id_usuario_registra']
+    items = datos['unidades']
+    ahora = timezone.now()
+
+    # Se bloquean las filas de las unidades hasta terminar. Si dos supervisores
+    # intentan retirar la misma unidad a la vez, el segundo espera y ve el cambio
+    ids = [item['id_unidad_recurso'].pk for item in items]
+    unidades = {
+        u.pk: u
+        for u in UnidadRecurso.objects.select_for_update().filter(pk__in=ids).order_by('pk')
+    }
+
+    movimientos = []
+    for item in items:
+        unidad = unidades[item['id_unidad_recurso'].pk]
+
+        if unidad.disponibilidad != 'Disponible':
+            raise RetiroInvalido(
+                f"La unidad {unidad.codigo_interno} no está disponible "
+                f"(estado actual: {unidad.disponibilidad})."
+            )
+        if unidad.estado.startswith('NoOp'):
+            raise RetiroInvalido(
+                f"La unidad {unidad.codigo_interno} no es operativa y no puede retirarse."
+            )
+
+        estado = item['estado_al_retirar']
+
+        # Se modifica el objeto en memoria; se guarda todo junto más abajo
+        unidad.disponibilidad = 'En Uso'
+        unidad.id_usuario_asignado = retira
+        unidad.estado = estado
+
+        movimientos.append(MovimientoInventario(
+            id_recurso=unidad.id_recurso,
+            id_unidad_recurso=unidad,
+            id_usuario_asignado=retira,
+            id_usuario_registra=registra,
+            id_proveedor=None,
+            id_motivo=datos.get('id_motivo'),
+            id_tipo_movimiento=tipo_retiro,
+            estado_al_retirar=estado,
+            fecha_hora_movimiento=ahora,
+            observaciones=datos.get('observaciones') or None,
+        ))
+
+    UnidadRecurso.objects.bulk_update(
+        list(unidades.values()), ['disponibilidad', 'id_usuario_asignado', 'estado']
+    )
+    MovimientoInventario.objects.bulk_create(movimientos)
+
+    return list(unidades.values())

@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from inventario.models import Recurso, Proveedor, FONDOS, ESTADOS_RECURSO
+from inventario.models import Recurso, Proveedor, UnidadRecurso, FONDOS, ESTADOS_RECURSO
 from usuarios.models import Usuario
 from .models import Motivo
-
+from .constantes import nombres_motivos
 
 class MotivoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -33,4 +33,43 @@ class IngresoSerializer(serializers.Serializer):
     fondo = serializers.ChoiceField(choices=FONDOS, default='Propio')
     estado = serializers.ChoiceField(choices=ESTADOS_RECURSO, default='Op-Bueno')
     observaciones = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    
+    def validate_id_motivo(self, motivo):
+        if motivo.nombre_motivo not in nombres_motivos('ingreso'):
+            raise serializers.ValidationError("El motivo no corresponde a un ingreso.")
+        return motivo
+
+class ItemRetiroSerializer(serializers.Serializer):
+    id_unidad_recurso = serializers.PrimaryKeyRelatedField(queryset=UnidadRecurso.objects.all())
+    # Solo estados operativos: no se retira equipo no operativo
+    estado_al_retirar = serializers.ChoiceField(
+        choices=[e for e in ESTADOS_RECURSO if e[0].startswith('Op-')]
+    )
+
+class RetiroSerializer(serializers.Serializer):
+    id_usuario_retira = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(activo=True)
+    )
+    # Temporal: con el login saldrá de la sesión y no del body
+    id_usuario_registra = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(activo=True)
+    )
+    id_motivo = serializers.PrimaryKeyRelatedField(
+        queryset=Motivo.objects.all(), required=False, allow_null=True
+    )
+    observaciones = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    unidades = ItemRetiroSerializer(many=True, allow_empty=False)
+
+    def validate_unidades(self, items):
+        ids = [i['id_unidad_recurso'].pk for i in items]
+        if len(ids) != len(set(ids)):
+            raise serializers.ValidationError("Hay unidades repetidas en el retiro.")
+        if len(ids) > 50:
+            raise serializers.ValidationError("Un retiro admite hasta 50 unidades.")
+        return items
+    
+    def validate_id_motivo(self, motivo):
+        if motivo and motivo.nombre_motivo not in nombres_motivos('retiro'):
+            raise serializers.ValidationError("El motivo no corresponde a un retiro.")
+        return motivo
     

@@ -152,10 +152,15 @@ class UnidadRecursoView(APIView):
     def get(self, request):
         unidades = (
             UnidadRecurso.objects
-            .select_related(
-                'id_recurso__id_categoria', 'id_proveedor', 'id_usuario_asignado'
-            )
+            .select_related('id_recurso__id_categoria', 'id_proveedor', 'id_usuario_asignado')
             .order_by('id_unidad_recurso')
         )
+        # Filtros opcionales: /api/unidades/?disponibilidad=Disponible&id_recurso=3
+        disponibilidad = request.query_params.get('disponibilidad')
+        if disponibilidad:
+            unidades = unidades.filter(disponibilidad=disponibilidad)
+        id_recurso = request.query_params.get('id_recurso')
+        if id_recurso and id_recurso.isdigit():
+            unidades = unidades.filter(id_recurso=id_recurso)
         return Response(UnidadRecursoSerializer(unidades, many=True).data)
     
