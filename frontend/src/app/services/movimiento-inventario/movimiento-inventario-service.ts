@@ -1,8 +1,9 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { Motivo } from '../../models/motivo.models';
 import { NuevoIngreso, ResultadoIngreso } from '../../models/ingreso.models';
+import { NuevoRetiro, ResultadoRetiro } from '../../models/retiro.models';
 
 // Formas que usa Django (snake_case). Solo se usan dentro de este servicio.
 interface MotivoApi {
@@ -22,8 +23,11 @@ export class MovimientoInventarioService {
     private readonly http = inject(HttpClient);
     private readonly apiUrl = 'http://localhost:8000/api';
 
-    obtenerMotivos(): Observable<Motivo[]> {
-        return this.http.get<MotivoApi[]>(`${this.apiUrl}/motivos/`).pipe(
+    obtenerMotivos(tipo?: string): Observable<Motivo[]> {
+        let params = new HttpParams();
+        if (tipo) params = params.set('tipo', tipo);
+
+        return this.http.get<MotivoApi[]>(`${this.apiUrl}/motivos/`, { params }).pipe(
             map((motivos) =>
                 motivos.map((m) => ({ idMotivo: m.id_motivo, nombreMotivo: m.nombre_motivo }))
             ),
@@ -57,9 +61,30 @@ export class MovimientoInventarioService {
         );
     }
 
+    registrarRetiro(retiro: NuevoRetiro): Observable<ResultadoRetiro> {
+        const body = {
+            id_usuario_retira: retiro.idUsuarioRetira,
+            id_usuario_registra: retiro.idUsuarioRegistra,
+            id_motivo: retiro.idMotivo,
+            observaciones: retiro.observaciones,
+            unidades: retiro.unidades.map((u) => ({
+                id_unidad_recurso: u.idUnidadRecurso,
+                estado_al_retirar: u.estadoAlRetirar,
+            })),
+        };
+
+        return this.http.post<IngresoRespuestaApi>(`${this.apiUrl}/retiros/`, body).pipe(
+            map((respuesta) => ({
+                mensaje: respuesta.mensaje,
+                codigos: respuesta.unidades.map((u) => u.codigo_interno),
+            })),
+            catchError(this.handleError)
+        );
+    }
+
     private handleError(error: HttpErrorResponse) {
-        // Los 400 son errores de validación de Django: se dejan pasar para mostrarlos
-        if (error.status === 400 && typeof error.error === 'object') {
+        // 400 (validación) y 409 (conflicto) traen un mensaje útil del servidor
+        if ((error.status === 400 || error.status === 409) && typeof error.error === 'object') {
             return throwError(() => error);
         }
         if (error.status === 0) {

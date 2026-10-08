@@ -68,7 +68,7 @@ export class RegistroIngreso implements OnInit {
             error: (e) => console.error('Error al cargar proveedores:', e),
         });
 
-        this.movimientoService.obtenerMotivos().subscribe({
+        this.movimientoService.obtenerMotivos('Ingreso').subscribe({
             next: (motivos) => {
                 this.motivos = motivos;
                 this.cdr.detectChanges();

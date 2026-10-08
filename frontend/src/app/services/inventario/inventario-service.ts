@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
 import { ResumenRecurso } from '../../models/resumen-recurso.models';
 import { UnidadRecurso } from '../../models/unidad-recurso.models';
@@ -62,8 +62,14 @@ export class InventarioService {
         );
     }
 
-    obtenerUnidades(): Observable<UnidadRecurso[]> {
-        return this.http.get<UnidadRecursoApi[]>(`${this.apiUrl}/unidades/`).pipe(
+    obtenerUnidades(
+        filtros: { idRecurso?: number; disponibilidad?: string } = {}
+    ): Observable<UnidadRecurso[]> {
+        let params = new HttpParams();
+        if (filtros.idRecurso !== undefined) params = params.set('id_recurso', filtros.idRecurso);
+        if (filtros.disponibilidad) params = params.set('disponibilidad', filtros.disponibilidad);
+
+        return this.http.get<UnidadRecursoApi[]>(`${this.apiUrl}/unidades/`, { params }).pipe(
             map((unidades) =>
                 unidades.map((u) => ({
                     idUnidadRecurso: u.id_unidad_recurso,
