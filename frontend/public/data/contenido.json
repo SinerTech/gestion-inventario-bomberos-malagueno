@@ -147,8 +147,9 @@
       "rol": "Responsable de área",
       "descripcion": "Controlá los recursos de tu área o sección, conocé su estado e informá cualquier cambio o novedad.",
       "accionesDisponibles": [
+        "Registrar el retiro de recursos por parte del personal.",
         "Consultar y buscar los recursos de tu área.",
-        "Conocer el estado de cada elemento.",
+        "Conocer el estado de cada unidad.",
         "Informar cambios o novedades sobre los recursos."
       ],
       "informacionSistema": [
@@ -162,16 +163,16 @@
       ],
       "accesosDirectos": [
         {
-          "icono": "bi-boxes",
-          "etiqueta": "Consultar Inventario",
-          "descripcion": "Buscar los recursos de tu área y ver su estado actual.",
-          "link": "/sinertech/dashboard-responsable/consulta-inventario"
+          "icono": "bi-box-arrow-up",
+          "etiqueta": "Retirar Recursos",
+          "descripcion": "Registrar qué unidades retira cada integrante y en qué estado.",
+          "link": "/bomberos-malagueno/dashboard-supervisor/retirar-recurso"
         },
         {
-          "icono": "bi-bell-fill",
-          "etiqueta": "Alertas y Novedades",
-          "descripcion": "Informar o gestionar situaciones que afectan a los recursos.",
-          "link": "/sinertech/dashboard-responsable/alertas"
+          "icono": "bi-boxes",
+          "etiqueta": "Control de Inventario",
+          "descripcion": "Consultar cuántas unidades hay de cada recurso y el estado de cada una.",
+          "link": "/bomberos-malagueno/dashboard-supervisor/control-inventario"
         }
       ],
       "botonesFiltro": ["todos", "disponible", "en uso", "de baja"],
@@ -180,9 +181,11 @@
         "Código interno",
         "Recurso",
         "Categoría",
+        "Proveedor",
         "Estado",
         "Disponibilidad",
-        "Asignado a"
+        "Asignado a",
+        "Fecha de alta"
       ],
       "accionesTabla": []
     },
