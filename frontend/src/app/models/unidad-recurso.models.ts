@@ -20,3 +20,24 @@ export const ESTADOS_RECURSO: OpcionSelect[] = [
     { valor: 'NoOp-Regular', etiqueta: 'No operativo - Regular' },
     { valor: 'NoOp-Malo', etiqueta: 'No operativo - Malo' },
 ];
+
+export interface UnidadRecurso {
+    idUnidadRecurso: number;
+    codigoInterno: string;
+    idRecurso: number;
+    nombreRecurso: string;
+    nombreCategoria: string;
+    medida: string | null;
+    marca: string | null;
+    numeroSerieFabricante: string | null;
+    fechaAlta: string;
+    valor: number | null;
+    fondo: string;
+    idProveedor: number;
+    razonSocial: string;
+    estado: string;
+    disponibilidad: string;
+    idUsuarioAsignado: number | null;
+    nombreUsuarioAsignado: string | null;
+    observaciones: string | null;
+}
