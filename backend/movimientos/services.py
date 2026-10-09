@@ -1,6 +1,6 @@
 from django.db import transaction
 from django.utils import timezone
-from inventario.models import Recurso, UnidadRecurso
+from inventario.models import Recurso, UnidadRecurso, AreaCategoria
 from .models import MovimientoInventario, TipoMovimiento, Alerta
 from .constantes import componer_observacion
 
@@ -86,7 +86,7 @@ def registrar_retiro(datos):
     registra = datos['id_usuario_registra']
     items = datos['unidades']
     ahora = timezone.now()
-
+        
     # Se bloquean las filas de las unidades hasta terminar. Si dos supervisores
     # intentan retirar la misma unidad a la vez, el segundo espera y ve el cambio
     ids = [item['id_unidad_recurso'].pk for item in items]
@@ -113,6 +113,19 @@ def registrar_retiro(datos):
             raise RetiroInvalido(
                 f"La unidad {unidad.codigo_interno} no es operativa y no puede retirarse."
             )
+            
+        categoria_id = unidad.id_recurso.id_categoria_id
+        categoria_habilitada = AreaCategoria.objects.filter(
+            id_area_id=retira.id_area_id,
+            id_categoria_id=categoria_id,
+        ).exists()
+    
+        if not categoria_habilitada:
+            raise RetiroInvalido(
+                f"La unidad {unidad.codigo_interno} pertenece a una "
+                f"categoría no habilitada para el área de "
+                f"{retira.nombre_usuario}."
+            )    
 
         estado = item['estado_al_retirar']
 

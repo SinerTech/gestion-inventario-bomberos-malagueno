@@ -5,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.db.models import ProtectedError
 from django.db.models import Count, Q
-from .models import Proveedor, Categoria, TipoMaterial, Recurso, RecursoTipoMaterial, UnidadRecurso
+from .models import Proveedor, Categoria, TipoMaterial, Recurso, RecursoTipoMaterial, UnidadRecurso, AreaCategoria
 from .serializers import (
     ProveedorSerializer, CategoriaSerializer,
     TipoMaterialSerializer, RecursoSerializer, UnidadRecursoSerializer, ResumenRecursoSerializer
@@ -145,6 +145,19 @@ class ResumenInventarioView(APIView):
             )
             .order_by('nombre_recurso')
         )
+        id_area = request.query_params.get('id_area')
+        if id_area:
+            if not id_area.isdigit():
+                return Response(
+                    {"error": "El área indicada no es válida."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            categorias_area = AreaCategoria.objects.filter(
+                id_area_id=int(id_area)
+            ).values_list('id_categoria_id', flat=True)
+            recursos = recursos.filter(
+                id_categoria_id__in=categorias_area
+            )
         return Response(ResumenRecursoSerializer(recursos, many=True).data)
 
 
@@ -165,5 +178,18 @@ class UnidadRecursoView(APIView):
         id_usuario = request.query_params.get('id_usuario_asignado')
         if id_usuario and id_usuario.isdigit():
             unidades = unidades.filter(id_usuario_asignado=id_usuario)
+        id_area = request.query_params.get('id_area')
+        if id_area:
+            if not id_area.isdigit():
+                return Response(
+                    {"error": "El área indicada no es válida."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            categorias_area = AreaCategoria.objects.filter(
+                id_area_id=int(id_area)
+            ).values_list('id_categoria_id', flat=True)
+            unidades = unidades.filter(
+                id_recurso__id_categoria_id__in=categorias_area
+            )
         return Response(UnidadRecursoSerializer(unidades, many=True).data)
         
