@@ -17,6 +17,7 @@ import { RetiroRecurso } from './pages/dashboard/dashboard-supervisor/retiro-rec
 import { DevolucionRecurso } from './pages/dashboard/dashboard-supervisor/devolucion-recurso/devolucion-recurso';
 import { MisRecursos } from './pages/dashboard/dashboard-operativo/mis-recursos/mis-recursos';
 import { ReportarNovedad } from './pages/dashboard/dashboard-operativo/reportar-novedad/reportar-novedad';
+import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
@@ -30,6 +31,7 @@ export const routes: Routes = [
             {
                 path: 'dashboard-supervisor',
                 component: DashboardSupervisor,
+                canActivate: [authGuard],
                 data: { rolesPermitidos: ['2'] },
                 children: [
                     { path: '', redirectTo: 'inicio-dashboard', pathMatch: 'full' },
@@ -51,6 +53,7 @@ export const routes: Routes = [
             {
                 path: 'dashboard-admin',
                 component: DashboardAdmin,
+                canActivate: [authGuard],
                 data: { rolesPermitidos: ['1'] },
                 children: [
                     { path: '', redirectTo: 'inicio-dashboard', pathMatch: 'full' },
@@ -73,6 +76,7 @@ export const routes: Routes = [
             {
             path: 'dashboard-operativo',
             component: DashboardOperativo,
+            canActivate: [authGuard],
             data: { rolesPermitidos: ['3'] },
             children: [
                 { path: '', redirectTo: 'inicio-dashboard', pathMatch: 'full' },
