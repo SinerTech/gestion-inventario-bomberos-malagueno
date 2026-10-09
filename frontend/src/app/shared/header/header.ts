@@ -19,7 +19,7 @@ export class Header {
   }
   cerrarSesion(): void {
     localStorage.removeItem('usuario_actual');
-    this.router.navigate(['/sinertech/landing-page']);
+    this.router.navigate(['/bomberos-malagueno/landing-page']);
   }
   get esDashboard(): boolean {
     return this.router.url.includes('dashboard');
