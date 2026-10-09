@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
-import { Usuario } from '../../models/usuario.models';
+import { UsuarioRegistro } from '../../models/usuario-registro.models';
 import { Rol } from '../../models/rol.models';
 import { Area } from '../../models/area.models';
 import { UsuarioListado } from '../../models/usuario-listado.models';
@@ -79,7 +79,7 @@ export class UsuarioService {
 
     // 'activo' no se envía: el backend lo deja en true por defecto
     registro(
-        nuevoUsuario: Omit<Usuario, 'idUsuario' | 'activo'>
+        nuevoUsuario: Omit<UsuarioRegistro, 'idUsuario' | 'activo'>
     ): Observable<RespuestaUsuario> {
         // Traducción de camelCase (Angular) a snake_case (Django)
         const body = {

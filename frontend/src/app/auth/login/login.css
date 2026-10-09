@@ -1,0 +1,294 @@
+:host {
+    display: block;
+    min-height: 100vh;
+}
+
+.login-page {
+    /* Paleta institucional */
+    --color-fondo: #0f172a;
+    --color-fondo-secundario: #111827;
+    --color-lateral: #1e293b;
+    --color-tarjeta: #1f2937;
+    --color-borde: #334155;
+    --color-texto: #f8fafc;
+    --color-texto-secundario: #cbd5e1;
+    --color-primario: #f97316;
+    --color-hover: rgba(225, 105, 19, 0.118);
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px 6%;
+    overflow: hidden;
+
+    background: linear-gradient(
+        180deg,
+        var(--color-fondo-secundario),
+        var(--color-fondo)
+    );
+    color: var(--color-texto);
+}
+
+.login-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        rgba(15, 23, 42, 0.88) 0%,
+        rgba(15, 23, 42, 0.68) 48%,
+        rgba(15, 23, 42, 0.48) 100%
+    );
+}
+
+.login-page {
+    background-image:
+        linear-gradient(
+            180deg,
+            rgba(17, 24, 39, 0.45),
+            rgba(15, 23, 42, 0.65)
+        ),
+        url('/login/login.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.login-layout {
+    position: relative;
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 48px;
+
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+}
+
+.login-presentacion {
+    flex: 1;
+    max-width: 580px;
+    color: var(--color-texto);
+}
+
+.login-etiqueta {
+    display: inline-block;
+    margin-bottom: 20px;
+    padding: 8px 14px;
+
+    color: var(--color-primario);
+    background: var(--color-hover);
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    border-radius: 50px;
+
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 2px;
+}
+
+.login-presentacion h1 {
+    margin-bottom: 20px;
+    color: var(--color-texto);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    line-height: 1.15;
+}
+
+.login-presentacion p {
+    max-width: 460px;
+    margin-bottom: 0;
+    color: var(--color-texto-secundario);
+    font-size: 1.1rem;
+    line-height: 1.7;
+}
+
+.login-card {
+    flex: 0 1 440px;
+    width: 100%;
+    padding: 42px;
+
+    background: var(--color-tarjeta);
+    border: 1px solid var(--color-borde);
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+}
+
+.login-encabezado {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.login-icono {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+
+    color: var(--color-primario);
+    background: rgba(249, 115, 22, 0.12);
+    border: 1px solid rgba(249, 115, 22, 0.25);
+    border-radius: 18px;
+    font-size: 1.8rem;
+}
+
+.login-encabezado h2 {
+    margin-bottom: 10px;
+    color: var(--color-texto);
+    font-size: 1.8rem;
+    font-weight: 700;
+}
+
+.login-encabezado p {
+    margin-bottom: 0;
+    color: var(--color-texto-secundario);
+    font-size: 0.95rem;
+}
+
+.login-card .form-label {
+    margin-bottom: 8px;
+    color: var(--color-texto);
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.login-input-group {
+    position: relative;
+}
+
+.login-input-group > i {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    z-index: 2;
+
+    color: var(--color-texto-secundario);
+    transform: translateY(-50%);
+}
+
+.login-input-group .form-control {
+    min-height: 50px;
+    padding: 12px 14px 12px 43px;
+
+    color: var(--color-texto);
+    background: var(--color-fondo-secundario);
+    border: 1px solid var(--color-borde);
+    border-radius: 12px;
+
+    font-size: 0.95rem;
+}
+
+.login-input-group .form-control::placeholder {
+    color: #94a3b8;
+    opacity: 1;
+}
+
+.login-input-group .form-control:focus {
+    color: var(--color-texto);
+    background: var(--color-fondo-secundario);
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.15);
+}
+
+.login-input-group .form-control:-webkit-autofill,
+.login-input-group .form-control:-webkit-autofill:hover,
+.login-input-group .form-control:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--color-texto);
+    -webkit-box-shadow: 0 0 0 1000px var(--color-fondo-secundario) inset;
+    transition: background-color 9999s ease-in-out 0s;
+}
+
+.login-boton {
+    min-height: 52px;
+    padding: 12px 20px;
+
+    color: #111827;
+    background: var(--color-primario);
+    border: 1px solid var(--color-primario);
+    border-radius: 12px;
+
+    font-size: 1rem;
+    font-weight: 700;
+    transition: background-color 0.45s, transform 0.45s;
+}
+
+.login-boton:hover:not(:disabled) {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.login-boton:disabled {
+    color: #111827;
+    background: #cbd5e1;
+    border-color: #cbd5e1;
+    cursor: not-allowed;
+}
+
+.login-pie {
+    margin-top: 28px;
+    padding-top: 20px;
+
+    color: var(--color-texto-secundario);
+    border-top: 1px solid var(--color-borde);
+    font-size: 0.8rem;
+    text-align: center;
+}
+
+.login-pie i {
+    color: var(--color-primario);
+}
+
+.login-card .invalid-feedback {
+    color: #fca5a5;
+}
+
+.login-card .form-control.is-invalid {
+    border-color: #f87171;
+}
+
+.login-card .alert-danger {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.25);
+    border-color: #7f1d1d;
+}
+
+@media (max-width: 900px) {
+    .login-page {
+        justify-content: center;
+        padding: 32px 24px;
+    }
+
+    .login-layout {
+        justify-content: center;
+    }
+
+    .login-presentacion {
+        display: none;
+    }
+
+    .login-card {
+        flex-basis: 440px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-page {
+        padding: 20px 16px;
+    }
+
+    .login-card {
+        padding: 30px 24px;
+        border-radius: 20px;
+    }
+
+    .login-encabezado h2 {
+        font-size: 1.55rem;
+    }
+}

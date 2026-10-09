@@ -1,1 +1,97 @@
-<p>login works!</p>
+<section class="login-page">
+    <div class="login-overlay"></div>
+    <div class="login-layout">
+        <div class="login-presentacion">
+            <span class="login-etiqueta">SISTEMA DE GESTIÓN</span>
+            <h1>Bomberos Voluntarios de Malagueño</h1>
+            <p>
+                Una plataforma para gestionar los recursos,
+                usuarios y operaciones del cuartel.
+            </p>
+        </div>
+        <div class="login-card">
+            <div class="login-encabezado">
+                <div class="login-icono">
+                    <i class="bi bi-shield-lock"></i>
+                </div>
+                <h2>Iniciar sesión</h2>
+                <p>Ingresá con tu cuenta de la organización.</p>
+            </div>
+            <form [formGroup]="formularioLogin" (ngSubmit)="ingresar()" class="d-flex flex-column">
+                <div class="mb-3">
+                    <label for="email" class="form-label">
+                        Correo electrónico
+                    </label>
+                    <div class="login-input-group">
+                        <i class="bi bi-envelope"></i>
+                        <input id="email" type="email" class="form-control" formControlName="email"
+                            placeholder="nombre@correo.com" autocomplete="username" [class.is-invalid]="
+                            formularioLogin.controls.email.invalid &&
+                            formularioLogin.controls.email.touched
+                        " />
+                    </div>
+                    @if (
+                        formularioLogin.controls.email.hasError('required') &&
+                        formularioLogin.controls.email.touched
+                    ) {
+                    <div class="invalid-feedback d-block">
+                        El correo electrónico es obligatorio.
+                    </div>
+                    }
+                    @if (
+                        formularioLogin.controls.email.hasError('email') &&
+                        formularioLogin.controls.email.touched
+                    ) {
+                    <div class="invalid-feedback d-block">
+                        Ingresá un correo electrónico válido.
+                    </div>
+                    }
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">
+                        Contraseña
+                    </label>
+                    <div class="login-input-group">
+                        <i class="bi bi-lock"></i>
+                        <input id="password" type="password" class="form-control" formControlName="password"
+                            placeholder="Ingresá tu contraseña" autocomplete="current-password" 
+                            [class.is-invalid]="
+                            formularioLogin.controls.password.invalid && 
+                            formularioLogin.controls.password.touched" 
+                        />
+                    </div>
+                    @if (
+                        formularioLogin.controls.password.invalid &&
+                        formularioLogin.controls.password.touched
+                    ) {
+                    <div class="invalid-feedback d-block">
+                        La contraseña es obligatoria.
+                    </div>
+                    }
+                </div>
+
+                @if (errorMensaje) {
+                    <div class="alert alert-danger py-2" role="alert">
+                        <i class="bi bi-exclamation-circle me-2"></i>
+                        {{ errorMensaje }}
+                    </div>
+                }
+
+                <button type="submit" class="btn btn-primary login-boton mt-2" [disabled]="cargando">
+                    @if (cargando) {
+                        <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                        Ingresando...
+                    } @else {
+                        Ingresar
+                        <i class="bi bi-arrow-right ms-2"></i>
+                    }
+                </button>
+            </form>
+
+            <div class="login-pie">
+                <i class="bi bi-shield-check me-1"></i>
+                Acceso exclusivo para personal autorizado.
+            </div>
+        </div>
+    </div>
+</section>
