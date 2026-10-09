@@ -15,6 +15,8 @@ import { Pagina404 } from './pages/pagina-404/pagina-404';
 import { RegistroIngreso } from './shared/registro-ingreso/registro-ingreso';
 import { RetiroRecurso } from './pages/dashboard/dashboard-supervisor/retiro-recurso/retiro-recurso';
 import { DevolucionRecurso } from './pages/dashboard/dashboard-supervisor/devolucion-recurso/devolucion-recurso';
+import { MisRecursos } from './pages/dashboard/dashboard-operativo/mis-recursos/mis-recursos';
+import { ReportarNovedad } from './pages/dashboard/dashboard-operativo/reportar-novedad/reportar-novedad';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
@@ -72,6 +74,16 @@ export const routes: Routes = [
             path: 'dashboard-operativo',
             component: DashboardOperativo,
             data: { rolesPermitidos: ['3'] },
+            children: [
+                { path: '', redirectTo: 'inicio-dashboard', pathMatch: 'full' },
+                    {
+                        path: 'inicio-dashboard',
+                        component: InicioDashboard,
+                        data: { tipoDashboard: 'bombero' },
+                    },
+                { path: 'mis-recursos', component: MisRecursos },
+                { path: 'reportar-novedad', component: ReportarNovedad },
+            ]
             }
         ]
     },

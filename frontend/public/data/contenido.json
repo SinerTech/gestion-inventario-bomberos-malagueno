@@ -108,10 +108,28 @@
       ],
       "accesosDirectos": [
         {
-          "icono": "bi-box-arrow-in-down",
+          "icono": "bi-box-seam-fill",
+          "etiqueta": "Gestionar Recursos",
+          "descripcion": "Registrar los recursos base y clasificarlos por categoría y material.",
+          "link": "/bomberos-malagueno/dashboard-admin/gestion-recurso"
+        },
+        {
+          "icono": "bi-people",
+          "etiqueta": "Gestionar Usuarios",
+          "descripcion": "Consultar, registrar, modificar y administrar los usuarios del sistema, sus roles y áreas asignadas.",
+          "link": "/bomberos-malagueno/dashboard-admin/usuarios"
+        },
+        {
+          "icono": "bi bi-box-seam",
           "etiqueta": "Registrar Ingresos",
-          "descripcion": "Dar de alta unidades de un recurso con su proveedor y datos de compra.",
+          "descripcion": "Dar de alta unidades de un recurso con su proveedor y otros datos.",
           "link": "/bomberos-malagueno/dashboard-admin/registro-ingreso"
+        },
+        {
+          "icono": "bi-boxes",
+          "etiqueta": "Control de Inventario",
+          "descripcion": "Consultar cuántas unidades hay de cada recurso y el estado de cada una.",
+          "link": "/bomberos-malagueno/dashboard-supervisor/control-inventario"
         },
         {
           "icono": "bi-truck",
@@ -120,10 +138,10 @@
           "link": "/bomberos-malagueno/dashboard-admin/gestion-proveedor"
         },
         {
-          "icono": "bi-box-seam-fill",
-          "etiqueta": "Gestionar Recursos",
-          "descripcion": "Registrar los recursos base y clasificarlos por categoría y material.",
-          "link": "/bomberos-malagueno/dashboard-admin/gestion-recurso"
+          "icono": "<bi bi-exclamation-triangle",
+          "etiqueta": "Gestionar Alertas",
+          "descripcion": "Consultar las alertas del inventario y gestionar su atención, registrando las acciones realizadas y su estado.",
+          "link": "/bomberos-malagueno/dashboard-admin/alertas"
         }
       ],
       "botonesFiltro": ["todos", "disponible", "en uso", "de baja"],
@@ -160,26 +178,33 @@
           "valor": "Responsable de área"
         },
         { "icono": "bi-box-seam-fill", "etiqueta": "Módulo", "valor": "Control de Recursos" },
-        { "icono": "bi-binoculars-fill", "etiqueta": "Acceso", "valor": "Panel de Área o Sección" }
+        { "icono": "bi-binoculars-fill", "etiqueta": "Acceso", "valor": "Panel de Área o Sección" },
+        { "icono": "bi-clipboard-check-fill", "etiqueta": "Tareas Principales", "valor": "Gestión de retiro y devolución de unidades del personal operativo"}
       ],
       "accesosDirectos": [
         {
-          "icono": "bi-box-arrow-up",
-          "etiqueta": "Retirar Recursos",
-          "descripcion": "Registrar qué unidades retira cada integrante y en qué estado.",
-          "link": "/bomberos-malagueno/dashboard-supervisor/retirar-recurso"
+          "icono": "bi bi-box-seam",
+          "etiqueta": "Registrar Ingresos",
+          "descripcion": "Dar de alta unidades de un recurso con su proveedor y otros datos.",
+          "link": "/bomberos-malagueno/dashboard-admin/registro-ingreso"
         },
         {
-          "icono": "bi-boxes",
-          "etiqueta": "Control de Inventario",
-          "descripcion": "Consultar cuántas unidades hay de cada recurso y el estado de cada una.",
-          "link": "/bomberos-malagueno/dashboard-supervisor/control-inventario"
+          "icono": "bi-box-arrow-up",
+          "etiqueta": "Retirar Recursos",
+          "descripcion": "Registrar qué unidades retira cada integrante y en qué estado salen.",
+          "link": "/bomberos-malagueno/dashboard-supervisor/retirar-recurso"
         },
         {
           "icono": "bi-box-arrow-in-down",
           "etiqueta": "Devolver Recursos",
           "descripcion": "Registrar las unidades que devuelve cada integrante y en qué estado vuelven.",
           "link": "/bomberos-malagueno/dashboard-supervisor/devolver-recurso"
+        },
+        {
+          "icono": "bi-boxes",
+          "etiqueta": "Control de Inventario",
+          "descripcion": "Consultar cuántas unidades hay de cada recurso y el estado de cada una.",
+          "link": "/bomberos-malagueno/dashboard-supervisor/control-inventario"
         }
       ],
       "botonesFiltro": ["todos", "disponible", "en uso", "de baja"],
@@ -200,9 +225,9 @@
       "rol": "Bombero",
       "descripcion": "Consultá los recursos del cuartel, conocé su estado e informá cualquier deterioro o novedad.",
       "accionesDisponibles": [
-        "Consultar y buscar recursos.",
-        "Conocer el estado de los elementos.",
-        "Informar deterioros o novedades."
+        "Consultar los recursos que tenés asignados.",
+        "Reportar deterioros, pérdidas o necesidades de reposición.",
+        "Solicitar que se retire un recurso de tu nombre."
       ],
       "informacionSistema": [
         { "icono": "bi-person-vcard-fill", "etiqueta": "Rol actual", "valor": "Usuario operativo" },
@@ -211,16 +236,16 @@
       ],
       "accesosDirectos": [
         {
-          "icono": "bi-boxes",
-          "etiqueta": "Consultar Recursos",
-          "descripcion": "Buscar recursos y ver su estado actual.",
-          "link": "/sinertech/dashboard-operativo/consulta-inventario"
+          "icono": "bi bi-backpack2-fill",
+          "etiqueta": "Mis Recursos",
+          "descripcion": "Ver los recursos que tenés bajo tu custodia y su estado.",
+          "link": "/bomberos-malagueno/dashboard-operativo/mis-recursos"
         },
         {
-          "icono": "bi-exclamation-triangle-fill",
-          "etiqueta": "Informar Novedad",
-          "descripcion": "Avisar sobre un deterioro, rotura o necesidad de reemplazo.",
-          "link": "/sinertech/dashboard-operativo/novedades"
+          "icono": "bi bi-exclamation-circle-fill",
+          "etiqueta": "Reportar Novedad",
+          "descripcion": "Avisar sobre un deterioro, una pérdida o la necesidad de reemplazo.",
+          "link": "/bomberos-malagueno/dashboard-operativo/reportar-novedad"
         }
       ],
       "botonesFiltro": ["todos", "disponible", "en uso", "de baja"],
