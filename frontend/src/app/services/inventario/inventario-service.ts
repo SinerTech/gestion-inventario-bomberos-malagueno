@@ -1,7 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
-import { ResumenRecurso } from '../../models/resumen-recurso.models';
 import { UnidadRecurso } from '../../models/unidad-recurso.models';
 
 // Formas que usa Django (snake_case). Solo se usan dentro de este servicio.
@@ -44,8 +43,15 @@ export class InventarioService {
     private readonly http = inject(HttpClient);
     private readonly apiUrl = 'http://localhost:8000/api';
 
-    obtenerResumen(): Observable<ResumenRecurso[]> {
-        return this.http.get<ResumenRecursoApi[]>(`${this.apiUrl}/inventario/resumen/`).pipe(
+    obtenerResumen(filtros: { idArea?: number } = {}) {
+        let params = new HttpParams();
+        if (filtros.idArea !== undefined) {
+            params = params.set('id_area', filtros.idArea);
+        }
+        return this.http.get<ResumenRecursoApi[]>(
+            `${this.apiUrl}/inventario/resumen/`,
+            { params }
+        ).pipe(
             map((recursos) =>
                 recursos.map((r) => ({
                     idRecurso: r.id_recurso,
@@ -63,13 +69,16 @@ export class InventarioService {
     }
 
     obtenerUnidades(
-        filtros: { idRecurso?: number; disponibilidad?: string; idUsuarioAsignado?: number } = {}
+        filtros: { idRecurso?: number; disponibilidad?: string; idUsuarioAsignado?: number; idArea?: number; } = {}
     ): Observable<UnidadRecurso[]> {
         let params = new HttpParams();
         if (filtros.idRecurso !== undefined) params = params.set('id_recurso', filtros.idRecurso);
         if (filtros.disponibilidad) params = params.set('disponibilidad', filtros.disponibilidad);
         if (filtros.idUsuarioAsignado !== undefined) {
             params = params.set('id_usuario_asignado', filtros.idUsuarioAsignado);
+        }
+        if (filtros.idArea !== undefined) {
+            params = params.set('id_area', filtros.idArea);
         }
 
         return this.http.get<UnidadRecursoApi[]>(`${this.apiUrl}/unidades/`, { params }).pipe(
