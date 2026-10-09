@@ -1070,68 +1070,6 @@ section.pagina-404 {
   }
 }
 
-/* ================================================= */
-/* ============ INTERFACES LOGIN / REGISTRO ======== */
-/* ================================================= */
-
-.login-fondo {
-  --color-fondo: #0f172a;
-  --color-fondo-secundario: #111827;
-  --color-lateral: #1e293b;
-  --color-tarjeta: #1f2937;
-  --color-borde: #334155;
-  --color-texto: #f8fafc;
-  --color-texto-secundario: #cbd5e1;
-  --color-primario: #f97316;
-  --color-hover: rgba(255, 255, 255, 0.04);
-
-  background: linear-gradient(
-    180deg,
-    var(--color-fondo-secundario),
-    var(--color-fondo)
-  );
-
-  color: var(--color-texto);
-}
-
-.login-main-container {
-  max-width: 100% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  width: 100% !important;
-}
-
-.login-section.container-fluid {
-  height: 100vh;
-  overflow: hidden;
-  background: transparent !important;
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-}
-
-.login-bg-image {
-  width: 100%;
-  height: 100%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
-.login-form-col {
-  display: flex !important;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
-  margin-bottom: 0 !important;
-  border-radius: 0 !important;
-  border: none !important;
-  box-shadow: none !important;
-}
-
-.login-form-wrapper {
-  max-width: 400px;
-}
-
 /* Estilos de textos */
 .texto-secundario {
   color: var(--color-texto-secundario);
