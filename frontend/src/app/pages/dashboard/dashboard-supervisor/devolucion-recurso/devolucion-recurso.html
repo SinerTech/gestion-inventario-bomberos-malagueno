@@ -1,0 +1,185 @@
+<section class="seccion_panel_admin" id="devolucion_recurso">
+    <h1>Devolver Recursos</h1>
+
+    @if (mensajeExito) {
+        <div class="alert alert-success">
+            <p class="mb-2">{{ mensajeExito }}</p>
+            <div class="d-flex flex-wrap gap-2">
+                @for (codigo of codigosDevueltos; track codigo) {
+                    <span class="badge bg-secondary">{{ codigo }}</span>
+                }
+            </div>
+        </div>
+    }
+
+    @if (erroresServidor.length) {
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @for (e of erroresServidor; track $index) {
+                    <li>{{ e }}</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <!-- ========== Paso 1: quién devuelve ========== -->
+    <h2 class="h5 mt-3">1. Quién devuelve</h2>
+
+    <div class="form_panel_admin">
+        <div class="row">
+            <div class="col-md-6 mb-2 text-start">
+                <label for="usuario_devuelve" class="form-label">Usuario que devuelve</label>
+                <select class="form-select" id="usuario_devuelve"
+                    (change)="seleccionarUsuario($any($event.target).value)">
+                    <option value="">Seleccionar</option>
+                    @for (u of usuarios; track u.idUsuario) {
+                        <option [value]="u.idUsuario">{{ u.nombreUsuario }} - {{ u.nombreArea }}</option>
+                    }
+                </select>
+            </div>
+
+            @if (usuarioSeleccionadoId !== null && recursosDelUsuario.length > 1) {
+                <div class="col-md-6 mb-2 text-start">
+                    <label for="filtro_recurso" class="form-label">Filtrar por recurso (opcional)</label>
+                    <select class="form-select" id="filtro_recurso"
+                        (change)="seleccionarRecurso($any($event.target).value)">
+                        <option value="">Todos los recursos</option>
+                        @for (r of recursosDelUsuario; track r.idRecurso) {
+                            <option [value]="r.idRecurso">{{ r.nombreRecurso }}</option>
+                        }
+                    </select>
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- ========== Paso 2: unidades en poder de esa persona ========== -->
+    <h2 class="h5">2. Unidades que tiene en uso</h2>
+
+    @if (usuarioSeleccionadoId === null) {
+        <p>Seleccioná un usuario para ver las unidades que tiene en uso.</p>
+    } @else if (cargandoUnidades) {
+        <p role="status">Cargando unidades...</p>
+    } @else {
+        <div class="table-responsive mb-2">
+            <table class="table-bordered table-hover mb-0 text-white">
+                <thead>
+                    <tr>
+                        <th scope="col">Código interno</th>
+                        <th scope="col">Recurso</th>
+                        <th scope="col">Marca</th>
+                        <th scope="col">Estado actual</th>
+                        <th scope="col">Agregar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (unidad of unidadesVisibles; track unidad.idUnidadRecurso) {
+                        <tr class="border-bottom border-white">
+                            <td>{{ unidad.codigoInterno }}</td>
+                            <td>
+                                {{ unidad.nombreRecurso }}
+                                @if (unidad.medida) {
+                                    <small class="d-block">{{ unidad.medida }}</small>
+                                }
+                            </td>
+                            <td>{{ unidad.marca ?? '-' }}</td>
+                            <td>
+                                <span class="badge" [class]="estadoClases[unidad.estado] ?? 'bg-light text-dark'">
+                                    {{ unidad.estado }}
+                                </span>
+                            </td>
+                            <td>
+                                <button type="button" title="Agregar a la devolución"
+                                    (click)="agregarUnidad(unidad)">
+                                    <i class="bi bi-plus-circle-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    } @empty {
+                        <tr>
+                            <td colspan="5" class="text-center text-white py-4 fs-5">
+                                @if (unidadesEnUso.length === 0) {
+                                    Este usuario no tiene unidades en uso.
+                                } @else {
+                                    No quedan unidades para agregar.
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        @if (unidadesVisibles.length > 1) {
+            <button type="button" class="btn btn-secondary mb-4" (click)="agregarTodas()">
+                <i class="bi bi-plus-square-fill"></i> Agregar todas ({{ unidadesVisibles.length }})
+            </button>
+        }
+    }
+
+    <!-- ========== Paso 3: unidades de la devolución ========== -->
+    <h2 class="h5 mt-3">3. Unidades de la devolución ({{ itemsDevolucion.length }})</h2>
+
+    <div class="table-responsive mb-4">
+        <table class="table-bordered mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">Código interno</th>
+                    <th scope="col">Recurso</th>
+                    <th scope="col">Estado al devolver</th>
+                    <th scope="col">Quitar</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of itemsDevolucion; track item.unidad.idUnidadRecurso) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ item.unidad.codigoInterno }}</td>
+                        <td>{{ item.unidad.nombreRecurso }} {{ item.unidad.medida ?? '' }}</td>
+                        <td>
+                            <select class="form-select"
+                                (change)="cambiarEstado(item, $any($event.target).value)">
+                                @for (e of estados; track e.valor) {
+                                    <option [value]="e.valor" [selected]="e.valor === item.estadoAlDevolver">
+                                        {{ e.etiqueta }}
+                                    </option>
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" title="Quitar de la devolución"
+                                (click)="quitarUnidad(item.unidad.idUnidadRecurso)">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="4" class="text-center text-white py-3">
+                            Todavía no agregaste unidades.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- ========== Confirmar ========== -->
+    <form class="form_panel_admin" [formGroup]="formularioDevolucion"
+        (ngSubmit)="registrarDevolucion()" novalidate>
+        <div class="row">
+            <div class="col-md-12 mb-3 text-start">
+                <label for="observaciones" class="form-label">Observaciones (opcional)</label>
+                <textarea id="observaciones" formControlName="observaciones" rows="2"
+                    placeholder="Ej: faltaba un accesorio, rotura en la costura..."></textarea>
+            </div>
+
+            <div class="acciones_crud">
+                <button type="submit" class="btn btn-primary"
+                    [disabled]="enviando || itemsDevolucion.length === 0">
+                    <i class="bi bi-box-arrow-in-down"></i>
+                    {{ enviando ? 'Registrando...' : 'Registrar devolución de ' + itemsDevolucion.length + ' unidad(es)' }}
+                </button>
+            </div>
+        </div>
+    </form>
+</section>
