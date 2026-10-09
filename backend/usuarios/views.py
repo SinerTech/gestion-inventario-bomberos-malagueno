@@ -1,10 +1,10 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.hashers import check_password
 from rest_framework.views import APIView as ApiView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Rol, Area, Usuario
 from .serializers import UsuarioSerializer, RolSerializer, AreaSerializer
-from django.shortcuts import get_object_or_404
 
 class UsuarioView(ApiView):
     def get(self, request):
@@ -74,3 +74,36 @@ class UsuarioDetalleView(ApiView):
             {"mensaje": "Usuario dado de baja correctamente."},
             status=status.HTTP_200_OK,
         )
+
+class LoginView(ApiView):
+    def post(self, request):
+        email = request.data.get('email', '').strip().lower()
+        password = request.data.get('password', '')
+
+        if not email or not password:
+            return Response(
+                {'mensaje': 'Email y contraseña son obligatorios.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        usuario = Usuario.objects.select_related(
+            'id_rol', 'id_area'
+        ).filter(email_usuario=email).first()
+
+        if (
+            usuario is None
+            or not usuario.activo
+            or not check_password(password, usuario.password)
+        ):
+            return Response(
+                {'mensaje': 'Credenciales incorrectas.'},
+                status=status.HTTP_401_UNAUTHORIZED,
+            )
+
+        datos_usuario = UsuarioSerializer(usuario).data
+
+        return Response(
+            {'usuario': datos_usuario},
+            status=status.HTTP_200_OK,
+        )
+    
