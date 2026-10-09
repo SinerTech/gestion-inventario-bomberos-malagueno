@@ -150,7 +150,8 @@
         "Registrar el retiro de recursos por parte del personal.",
         "Consultar y buscar los recursos de tu área.",
         "Conocer el estado de cada unidad.",
-        "Informar cambios o novedades sobre los recursos."
+        "Informar cambios o novedades sobre los recursos.",
+        "Registrar la devolución de recursos por parte del personal."
       ],
       "informacionSistema": [
         {
@@ -173,6 +174,12 @@
           "etiqueta": "Control de Inventario",
           "descripcion": "Consultar cuántas unidades hay de cada recurso y el estado de cada una.",
           "link": "/bomberos-malagueno/dashboard-supervisor/control-inventario"
+        },
+        {
+          "icono": "bi-box-arrow-in-down",
+          "etiqueta": "Devolver Recursos",
+          "descripcion": "Registrar las unidades que devuelve cada integrante y en qué estado vuelven.",
+          "link": "/bomberos-malagueno/dashboard-supervisor/devolver-recurso"
         }
       ],
       "botonesFiltro": ["todos", "disponible", "en uso", "de baja"],
