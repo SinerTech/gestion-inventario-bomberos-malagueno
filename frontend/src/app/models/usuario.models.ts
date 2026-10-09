@@ -4,6 +4,14 @@ export interface Usuario {
     idRol: number;
     idArea: number;
     emailUsuario: string;
-    password: string;
     activo: boolean;
+    
+    rol: {
+    id_rol: number;
+    nombre_rol: string;
+    };
+    area: {
+        id_area: number;
+        nombre_area: string;
+    };
 }
