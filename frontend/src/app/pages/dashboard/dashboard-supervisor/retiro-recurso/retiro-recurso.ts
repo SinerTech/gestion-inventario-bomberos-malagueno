@@ -73,7 +73,7 @@ export class RetiroRecurso implements OnInit {
     ngOnInit(): void {
         this.usuarioService.obtenerUsuarios().subscribe({
             next: (usuarios) => {
-                this.usuarios = usuarios.filter((u) => u.activo); // un usuario de baja no retira
+                this.usuarios = usuarios.filter((u) => u.activo && u.idRol === 3); // un usuario de baja no retira
                 this.cdr.detectChanges();
             },
             error: (e) => console.error('Error al cargar usuarios:', e),
