@@ -1,0 +1,68 @@
+<section class="seccion_panel_admin" id="mis_recursos">
+    <h1>Mis Recursos</h1>
+    <p>Recursos asignados a nombre de <strong>{{ nombreUsuario }}</strong>.</p>
+
+    @if (cargando) {
+        <p role="status">Cargando tus recursos...</p>
+    } @else if (mensajeError) {
+        <div class="alert alert-danger" role="alert">{{ mensajeError }}</div>
+    } @else {
+        <div class="table-responsive">
+            <table class="table-bordered table-hover mb-0 text-white">
+                <thead>
+                    <tr>
+                        <th scope="col">Código interno</th>
+                        <th scope="col">Recurso</th>
+                        <th scope="col">Marca</th>
+                        <th scope="col">N° de serie</th>
+                        <th scope="col">Estado</th>
+                        <th scope="col">Retirado el</th>
+                        <th scope="col">Novedad</th>
+                        <th scope="col">Acción</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (unidad of unidades; track unidad.idUnidadRecurso) {
+                        <tr class="border-bottom border-white">
+                            <td>{{ unidad.codigoInterno }}</td>
+                            <td>
+                                {{ unidad.nombreRecurso }}
+                                @if (unidad.medida) {
+                                    <small class="d-block">{{ unidad.medida }}</small>
+                                }
+                            </td>
+                            <td>{{ unidad.marca ?? '-' }}</td>
+                            <td>{{ unidad.numeroSerieFabricante ?? '-' }}</td>
+                            <td>
+                                <span class="badge" [class]="estadoClases[unidad.estado] ?? 'bg-light text-dark'">
+                                    {{ unidad.estado }}
+                                </span>
+                            </td>
+                            <td>{{ unidad.fechaAlta | date: 'dd/MM/yyyy' }}</td>
+                            <td class="text-center align-middle">
+                                @if (idsConNovedad.has(unidad.idUnidadRecurso)) {
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="acciones_crud">
+                                    <a class="btn btn-primary" title="Reportar una novedad de esta unidad"
+                                        routerLink="/bomberos-malagueno/dashboard-operativo/reportar-novedad"
+                                        [queryParams]="{ unidad: unidad.idUnidadRecurso }">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Reportar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    } @empty {
+                        <tr>
+                            <td colspan="7" class="text-center text-white py-4 fs-5">
+                                No tenés recursos asignados en este momento.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</section>

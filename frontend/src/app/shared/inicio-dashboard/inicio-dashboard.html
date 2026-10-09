@@ -20,13 +20,13 @@
         <h2>Accesos Directos</h2>
         <div class="grilla_valores">
             @for (acceso of configuracionActual.accesosDirectos; track acceso.link) {
-                <article class="card_valor">
+                <article class="card_valor d-flex flex-column h-100">
                     <span class="icono_card_valor">
                         <i class="bi" [class]="acceso.icono"></i>
                     </span>
                     <h3>{{acceso.etiqueta}}</h3>
                     <p>{{acceso.descripcion}}</p>
-                    <div class="acciones_crud d-flex justify-content-center">
+                    <div class="acciones_crud d-flex justify-content-center mt-auto pt-3">
                         <button type="button" class="active" [routerLink]="acceso.link">
                             Acceder
                         </button>

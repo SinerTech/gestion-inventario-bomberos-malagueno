@@ -1,1 +1,41 @@
-<p>dashboard-operativo works!</p>
+<aside class="acceso_panel_admin">
+    <div class="opcion_panel_admin">
+        <span>Panel Principal</span>
+        <nav>
+            <ul>
+                <li>
+                    <a
+                        routerLink="/bomberos-malagueno/dashboard-operativo/inicio-dashboard"
+                        routerLinkActive="active"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        ariaCurrentWhenActive="page">
+                        <i class="bi bi-house-fill"></i>
+                        Inicio
+                    </a>
+                </li>
+                <li>
+                    <a
+                        routerLink="/bomberos-malagueno/dashboard-operativo/mis-recursos"
+                        routerLinkActive="active"
+                        ariaCurrentWhenActive="page">
+                        <i class="bi bi-backpack2-fill"></i>
+                        Mis Recursos
+                    </a>
+                </li>
+                <li>
+                    <a
+                        routerLink="/bomberos-malagueno/dashboard-operativo/reportar-novedad"
+                        routerLinkActive="active"
+                        ariaCurrentWhenActive="page">
+                        <i class="bi bi-exclamation-circle-fill"></i>
+                        Novedades
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</aside>
+
+<main class="panel_control_admin">
+    <router-outlet></router-outlet>
+</main>

@@ -1,0 +1,105 @@
+<section class="seccion_panel_admin" id="reportar_novedad">
+    <h1>Reportar Novedad</h1>
+
+    @if (mensajeExito) {
+        <div class="alert alert-success">{{ mensajeExito }}</div>
+    }
+
+    @if (erroresServidor.length) {
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @for (e of erroresServidor; track $index) {
+                    <li>{{ e }}</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <form class="form_panel_admin" [formGroup]="formularioNovedad"
+        (ngSubmit)="reportarNovedad()" novalidate>
+        <div class="row">
+            <div class="col-md-6 mb-2 text-start">
+                <label for="unidad" class="form-label">Unidad</label>
+                <select class="form-select" id="unidad" formControlName="unidad"
+                    [class.is-invalid]="Unidad?.invalid && Unidad?.touched">
+                    <option value="">Seleccionar</option>
+                    @for (u of unidades; track u.idUnidadRecurso) {
+                        <option [ngValue]="u.idUnidadRecurso">
+                            {{ u.codigoInterno }} - {{ u.nombreRecurso }} {{ u.medida ?? '' }}
+                        </option>
+                    }
+                </select>
+                <div class="invalid-feedback">Seleccioná la unidad sobre la que reportás.</div>
+                @if (unidades.length === 0) {
+                    <small>No tenés recursos asignados para reportar.</small>
+                }
+            </div>
+
+            <div class="col-md-6 mb-2 text-start">
+                <label for="tipo" class="form-label">Tipo de novedad</label>
+                <select class="form-select" id="tipo" formControlName="tipo"
+                    [class.is-invalid]="Tipo?.invalid && Tipo?.touched">
+                    <option value="">Seleccionar</option>
+                    @for (t of tipos; track t.valor) {
+                        <option [value]="t.valor">{{ t.etiqueta }}</option>
+                    }
+                </select>
+                <div class="invalid-feedback">Seleccioná el tipo de novedad.</div>
+            </div>
+
+            <div class="col-md-12 mb-3 text-start">
+                <label for="descripcion" class="form-label">Motivo / descripción</label>
+                <textarea id="descripcion" formControlName="descripcion" rows="3"
+                    placeholder="Contá qué pasó, desde cuándo y en qué condiciones."
+                    [class.is-invalid]="Descripcion?.invalid && Descripcion?.touched"></textarea>
+                <div class="invalid-feedback">Describí la novedad (entre 10 y 500 caracteres).</div>
+            </div>
+
+            <div class="acciones_crud">
+                <button type="submit" class="btn btn-primary" [disabled]="enviando">
+                    <i class="bi bi-send-fill"></i>
+                    {{ enviando ? 'Enviando...' : 'Enviar reporte' }}
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <h2 class="h5 mt-5">Mis reportes</h2>
+    <div class="table-responsive">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Unidad</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (alerta of misAlertas; track alerta.idAlerta) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ alerta.fechaGenerada | date: 'dd/MM/yyyy HH:mm' }}</td>
+                        <td>
+                            {{ alerta.codigoInterno }}
+                            <small class="d-block">{{ alerta.nombreRecurso }}</small>
+                        </td>
+                        <td>{{ alerta.tipo }}</td>
+                        <td>{{ alerta.descripcion }}</td>
+                        <td>
+                            <span class="badge" [class]="alertaClases[alerta.estadoAlerta] ?? 'bg-light text-dark'">
+                                {{ alerta.estadoAlerta }}
+                            </span>
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="5" class="text-center text-white py-4 fs-5">
+                            Todavía no reportaste novedades.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
