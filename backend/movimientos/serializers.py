@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from inventario.models import Recurso, Proveedor, UnidadRecurso, FONDOS, ESTADOS_RECURSO
 from usuarios.models import Usuario
-from .models import Motivo
-from .constantes import nombres_motivos
+from .models import Motivo, Alerta
+from .constantes import nombres_motivos, separar_observacion, TIPOS_NOVEDAD
 
 class MotivoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -97,4 +97,36 @@ class DevolucionSerializer(serializers.Serializer):
         if len(ids) > 50:
             raise serializers.ValidationError("Una devolución admite hasta 50 unidades.")
         return items
+    
+class AlertaSerializer(serializers.ModelSerializer):
+    # Solo lectura: datos de la unidad y el texto separado en tipo + descripción
+    codigo_interno = serializers.CharField(source='id_unidad_recurso.codigo_interno', read_only=True)
+    nombre_recurso = serializers.CharField(
+        source='id_unidad_recurso.id_recurso.nombre_recurso', read_only=True
+    )
+    tipo = serializers.SerializerMethodField()
+    descripcion = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Alerta
+        fields = [
+            'id_alerta', 'id_unidad_recurso', 'codigo_interno', 'nombre_recurso',
+            'origen', 'tipo', 'descripcion', 'estado_alerta', 'fecha_generada',
+        ]
+
+    def get_tipo(self, obj):
+        return separar_observacion(obj.observaciones)[0]
+
+    def get_descripcion(self, obj):
+        return separar_observacion(obj.observaciones)[1]
+
+
+class NovedadSerializer(serializers.Serializer):
+    id_unidad_recurso = serializers.PrimaryKeyRelatedField(queryset=UnidadRecurso.objects.all())
+    # Temporal: con el login saldrá de la sesión y no del body
+    id_usuario_reporta = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(activo=True)
+    )
+    tipo = serializers.ChoiceField(choices=TIPOS_NOVEDAD)
+    descripcion = serializers.CharField(min_length=10, max_length=500)
     

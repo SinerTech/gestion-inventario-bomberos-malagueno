@@ -1,8 +1,8 @@
 from django.db import transaction
 from django.utils import timezone
 from inventario.models import Recurso, UnidadRecurso
-from .models import MovimientoInventario, TipoMovimiento
-
+from .models import MovimientoInventario, TipoMovimiento, Alerta
+from .constantes import componer_observacion
 
 def _generar_codigos(recurso, cantidad):
     # Formato: R0007-0001 (recurso 7, unidad 1). Continúa la numeración existente
@@ -209,3 +209,54 @@ def registrar_devolucion(datos):
     )
 
     return list(unidades.values())
+
+class NovedadInvalida(Exception):
+    """La novedad no se puede registrar por el estado actual de la unidad."""
+
+
+@transaction.atomic
+def registrar_novedad(datos):
+    usuario = datos['id_usuario_reporta']
+    tipo = datos['tipo']
+
+    # El candado serializa reportes simultáneos sobre la misma unidad
+    unidad = UnidadRecurso.objects.select_for_update().get(pk=datos['id_unidad_recurso'].pk)
+
+    if unidad.id_usuario_asignado_id != usuario.pk:
+        raise NovedadInvalida(
+            f"La unidad {unidad.codigo_interno} no está asignada a {usuario.nombre_usuario}."
+        )
+
+    repetida = Alerta.objects.filter(
+        id_unidad_recurso=unidad,
+        id_usuario_reporta=usuario,
+        estado_alerta='Pendiente',
+        observaciones__startswith=f"[{tipo}]",
+    ).exists()
+    if repetida:
+        raise NovedadInvalida(
+            f"Ya tenés una novedad de tipo '{tipo}' pendiente para la unidad {unidad.codigo_interno}."
+        )
+
+    # Retiro vigente de esa unidad (el que todavía no tiene devolución)
+    retiro_abierto = (
+        MovimientoInventario.objects
+        .filter(
+            id_unidad_recurso=unidad,
+            id_tipo_movimiento__nombre_tipo_movimiento__iexact='Retiro',
+            fecha_hora_devolucion__isnull=True,
+        )
+        .order_by('-fecha_hora_movimiento')
+        .first()
+    )
+
+    return Alerta.objects.create(
+        id_unidad_recurso=unidad,
+        origen='Manual',
+        id_movimiento=retiro_abierto,      # puede ser None si no se encuentra
+        id_usuario_reporta=usuario,
+        fecha_generada=timezone.now(),
+        observaciones=componer_observacion(tipo, datos['descripcion']),
+        estado_alerta='Pendiente',
+    )
+    

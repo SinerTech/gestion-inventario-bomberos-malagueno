@@ -1,9 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Motivo, TipoMovimiento
-from .serializers import MotivoSerializer, IngresoSerializer, RetiroSerializer, DevolucionSerializer 
-from .services import registrar_ingreso, registrar_retiro, RetiroInvalido, registrar_devolucion, DevolucionInvalida
+from .models import Motivo, TipoMovimiento, Alerta
+from .serializers import MotivoSerializer, IngresoSerializer, RetiroSerializer, DevolucionSerializer, NovedadSerializer, AlertaSerializer
+from .services import registrar_ingreso, registrar_retiro, RetiroInvalido, registrar_devolucion, DevolucionInvalida, registrar_novedad, NovedadInvalida
 from .constantes import nombres_motivos
 
 class MotivoView(APIView):
@@ -116,3 +116,43 @@ class DevolucionView(APIView):
             },
             status=status.HTTP_201_CREATED,
         )
+
+class AlertaView(APIView):
+    def get(self, request):
+        alertas = (
+            Alerta.objects
+            .select_related('id_unidad_recurso__id_recurso')
+            .order_by('-fecha_generada')
+        )
+        # Filtros opcionales: /api/alertas/?id_usuario_reporta=3&estado_alerta=Pendiente
+        id_usuario = request.query_params.get('id_usuario_reporta')
+        if id_usuario and id_usuario.isdigit():
+            alertas = alertas.filter(id_usuario_reporta=id_usuario)
+        estado = request.query_params.get('estado_alerta')
+        if estado:
+            alertas = alertas.filter(estado_alerta=estado)
+        return Response(AlertaSerializer(alertas, many=True).data)
+
+    def post(self, request):
+        serializer = NovedadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            alerta = registrar_novedad(serializer.validated_data)
+        except NovedadInvalida as e:
+            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response(
+                {"error": "Ocurrió un error interno al registrar la novedad."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {
+                "mensaje": "Novedad registrada. El supervisor la verá como alerta pendiente.",
+                "alerta": AlertaSerializer(alerta).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+    
