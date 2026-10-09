@@ -73,3 +73,28 @@ class RetiroSerializer(serializers.Serializer):
             raise serializers.ValidationError("El motivo no corresponde a un retiro.")
         return motivo
     
+class ItemDevolucionSerializer(serializers.Serializer):
+    id_unidad_recurso = serializers.PrimaryKeyRelatedField(queryset=UnidadRecurso.objects.all())
+    # Al devolver sí puede volver en mal estado: se aceptan los 6 valores
+    estado_al_devolver = serializers.ChoiceField(choices=ESTADOS_RECURSO)
+
+
+class DevolucionSerializer(serializers.Serializer):
+    id_usuario_devuelve = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(activo=True)
+    )
+    # Temporal: con el login saldrá de la sesión y no del body
+    id_usuario_registra = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(activo=True)
+    )
+    observaciones = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    unidades = ItemDevolucionSerializer(many=True, allow_empty=False)
+
+    def validate_unidades(self, items):
+        ids = [i['id_unidad_recurso'].pk for i in items]
+        if len(ids) != len(set(ids)):
+            raise serializers.ValidationError("Hay unidades repetidas en la devolución.")
+        if len(ids) > 50:
+            raise serializers.ValidationError("Una devolución admite hasta 50 unidades.")
+        return items
+    

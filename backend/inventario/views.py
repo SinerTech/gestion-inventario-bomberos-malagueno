@@ -162,5 +162,8 @@ class UnidadRecursoView(APIView):
         id_recurso = request.query_params.get('id_recurso')
         if id_recurso and id_recurso.isdigit():
             unidades = unidades.filter(id_recurso=id_recurso)
+        id_usuario = request.query_params.get('id_usuario_asignado')
+        if id_usuario and id_usuario.isdigit():
+            unidades = unidades.filter(id_usuario_asignado=id_usuario)
         return Response(UnidadRecursoSerializer(unidades, many=True).data)
-    
+        

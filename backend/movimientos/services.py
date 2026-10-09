@@ -135,3 +135,77 @@ def registrar_retiro(datos):
     MovimientoInventario.objects.bulk_create(movimientos)
 
     return list(unidades.values())
+
+class DevolucionInvalida(Exception):
+    """La devolución no se puede hacer por el estado actual de las unidades."""
+
+
+@transaction.atomic
+def registrar_devolucion(datos):
+    devuelve = datos['id_usuario_devuelve']
+    items = datos['unidades']
+    ahora = timezone.now()
+    observaciones = datos.get('observaciones')
+
+    # Se bloquean las unidades hasta terminar (como en retiro)
+    ids = [item['id_unidad_recurso'].pk for item in items]
+    unidades = {
+        u.pk: u
+        for u in UnidadRecurso.objects.select_for_update().filter(pk__in=ids).order_by('pk')
+    }
+
+    # Movimientos de retiro abiertos (sin devolución) de esas unidades
+    abiertos = {
+        m.id_unidad_recurso_id: m
+        for m in MovimientoInventario.objects.select_for_update().filter(
+            id_unidad_recurso__in=ids,
+            id_tipo_movimiento__nombre_tipo_movimiento__iexact='Retiro',
+            fecha_hora_devolucion__isnull=True,
+        )
+    }
+
+    movimientos = []
+    for item in items:
+        unidad = unidades[item['id_unidad_recurso'].pk]
+
+        if unidad.disponibilidad != 'En Uso':
+            raise DevolucionInvalida(
+                f"La unidad {unidad.codigo_interno} no está en uso "
+                f"(estado actual: {unidad.disponibilidad})."
+            )
+        if unidad.id_usuario_asignado_id != devuelve.pk:
+            raise DevolucionInvalida(
+                f"La unidad {unidad.codigo_interno} no está asignada a {devuelve.nombre_usuario}."
+            )
+
+        movimiento = abiertos.get(unidad.pk)
+        if movimiento is None:
+            raise DevolucionInvalida(
+                f"No se encontró el retiro pendiente de la unidad {unidad.codigo_interno}."
+            )
+
+        estado = item['estado_al_devolver']
+
+        # Cierre del movimiento de retiro
+        movimiento.estado_al_devolver = estado
+        movimiento.fecha_hora_devolucion = ahora
+        if observaciones:
+            previas = movimiento.observaciones
+            movimiento.observaciones = (
+                f"{previas}\nDevolución: {observaciones}" if previas else f"Devolución: {observaciones}"
+            )
+        movimientos.append(movimiento)
+
+        # La unidad vuelve a estar libre
+        unidad.disponibilidad = 'Disponible'
+        unidad.id_usuario_asignado = None
+        unidad.estado = estado
+
+    UnidadRecurso.objects.bulk_update(
+        list(unidades.values()), ['disponibilidad', 'id_usuario_asignado', 'estado']
+    )
+    MovimientoInventario.objects.bulk_update(
+        movimientos, ['estado_al_devolver', 'fecha_hora_devolucion', 'observaciones']
+    )
+
+    return list(unidades.values())

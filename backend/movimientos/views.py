@@ -2,8 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Motivo, TipoMovimiento
-from .serializers import MotivoSerializer, IngresoSerializer, RetiroSerializer
-from .services import registrar_ingreso, registrar_retiro, RetiroInvalido
+from .serializers import MotivoSerializer, IngresoSerializer, RetiroSerializer, DevolucionSerializer 
+from .services import registrar_ingreso, registrar_retiro, RetiroInvalido, registrar_devolucion, DevolucionInvalida
 from .constantes import nombres_motivos
 
 class MotivoView(APIView):
@@ -88,3 +88,31 @@ class RetiroView(APIView):
             status=status.HTTP_201_CREATED,
         )
         
+class DevolucionView(APIView):
+    def post(self, request):
+        serializer = DevolucionSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            unidades = registrar_devolucion(serializer.validated_data)
+        except DevolucionInvalida as e:
+            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response(
+                {"error": "Ocurrió un error interno al registrar la devolución."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        devuelve = serializer.validated_data['id_usuario_devuelve']
+        return Response(
+            {
+                "mensaje": f"Se registró la devolución de {len(unidades)} unidad(es) "
+                           f"de {devuelve.nombre_usuario}.",
+                "unidades": [
+                    {"id_unidad_recurso": u.id_unidad_recurso, "codigo_interno": u.codigo_interno}
+                    for u in unidades
+                ],
+            },
+            status=status.HTTP_201_CREATED,
+        )
