@@ -920,6 +920,7 @@ border-left: 5px solid #a94442; /* red */
 }
 
 .acciones_crud button,
+.acciones_crud a,
 .form_panel_admin input[type="submit"],
 .seccion_panel_admin button {
   display: flex;
