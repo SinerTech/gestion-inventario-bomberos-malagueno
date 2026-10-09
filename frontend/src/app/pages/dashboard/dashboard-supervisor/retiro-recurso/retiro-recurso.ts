@@ -34,6 +34,7 @@ export class RetiroRecurso implements OnInit {
     unidadesVisibles: UnidadRecurso[] = [];
     usuarios: UsuarioListado[] = [];
     motivos: Motivo[] = [];
+    areaSeleccionadaId: number | null = null;
 
     // Solo se puede retirar equipo operativo
     estadosOperativos = ESTADOS_RECURSO.filter((e) => e.valor.startsWith('Op-'));
@@ -71,49 +72,108 @@ export class RetiroRecurso implements OnInit {
     });
 
     ngOnInit(): void {
-        this.usuarioService.obtenerUsuarios().subscribe({
-            next: (usuarios) => {
-                this.usuarios = usuarios.filter((u) => u.activo && u.idRol === 3); // un usuario de baja no retira
-                this.cdr.detectChanges();
-            },
-            error: (e) => console.error('Error al cargar usuarios:', e),
-        });
+    this.usuarioService.obtenerUsuarios().subscribe({
+        next: (usuarios) => {
+            this.usuarios = usuarios.filter(
+                (u) => u.activo && u.idRol === 3
+            );
+            this.cdr.detectChanges();
+        },
+        error: (e) => console.error('Error al cargar usuarios:', e),
+    });
 
-        this.movimientoService.obtenerMotivos('Retiro').subscribe({
-            next: (motivos) => {
-                this.motivos = motivos;
-                this.cdr.detectChanges();
-            },
-            error: (e) => console.error('Error al cargar motivos:', e),
-        });
-
-        this.cargarResumen();
-        this.cargarUnidades();
+    this.movimientoService.obtenerMotivos('Retiro').subscribe({
+        next: (motivos) => {
+            this.motivos = motivos;
+            this.cdr.detectChanges();
+        },
+        error: (e) => console.error('Error al cargar motivos:', e),
+    });
+    this.UsuarioRetira?.valueChanges.subscribe((valor) => {
+        this.cambiarUsuarioRetira(valor);
+    });
     }
 
-    // Trae cuántas unidades disponibles tiene cada recurso (para el desplegable)
-    private cargarResumen(): void {
-        this.inventarioService.obtenerResumen().subscribe({
+    private cargarResumen(idArea: number): void {
+        this.inventarioService.obtenerResumen({ idArea }).subscribe({
             next: (resumen) => {
                 this.resumen = resumen.filter((r) => r.disponibles > 0);
+
+                // Si el recurso elegido no está habilitado en el área, se limpia.
+                if (
+                    this.filtroRecursoId !== null &&
+                    !this.resumen.some(
+                        (r) => r.idRecurso === this.filtroRecursoId
+                    )
+                ) {
+                    this.filtroRecursoId = null;
+                }
+
+                this.aplicarFiltros();
                 this.cdr.detectChanges();
             },
-            error: (e) => console.error('Error al cargar el resumen:', e),
+            error: (e) => {
+                console.error('Error al cargar el resumen:', e);
+                this.resumen = [];
+                this.cdr.detectChanges();
+            },
         });
     }
 
-    // Pide al servidor solo las unidades disponibles (el filtro lo hace el backend)
-    private cargarUnidades(): void {
-        this.inventarioService.obtenerUnidades({ disponibilidad: 'Disponible' }).subscribe({
+    cambiarUsuarioRetira(valor: unknown): void {
+        const idUsuario = Number(valor);
+
+        const usuarioSeleccionado = valor !== '' && valor !== null
+            ? this.usuarios.find((u) => u.idUsuario === idUsuario)
+            : undefined;
+
+        const nuevaArea = usuarioSeleccionado?.idArea ?? null;
+
+        if (nuevaArea !== this.areaSeleccionadaId) {
+            this.itemsRetiro = [];
+            this.filtroRecursoId = null;
+            this.terminoBusqueda = '';
+        }
+
+        this.areaSeleccionadaId = nuevaArea;
+        this.erroresServidor = [];
+
+        if (nuevaArea === null) {
+            this.resumen = [];
+            this.unidadesDisponibles = [];
+            this.unidadesVisibles = [];
+            this.cdr.detectChanges();
+            return;
+        }
+
+        console.log('Bombero seleccionado:', usuarioSeleccionado);
+        console.log('Área seleccionada:', nuevaArea);
+
+        this.cargarResumen(nuevaArea);
+        this.cargarUnidades(nuevaArea);
+    }
+
+    private cargarUnidades(idArea: number): void {
+        this.inventarioService.obtenerUnidades({
+            disponibilidad: 'Disponible',
+            idArea,
+        }).subscribe({
             next: (unidades) => {
-                this.unidadesDisponibles = unidades.filter((u) => u.estado.startsWith('Op-'));
+                this.unidadesDisponibles = unidades.filter(
+                    (u) => u.estado.startsWith('Op-')
+                );
+
                 this.depurarRetiro();
                 this.aplicarFiltros();
                 this.cdr.detectChanges();
             },
             error: (e) => {
                 console.error('Error al cargar las unidades:', e);
-                this.erroresServidor = ['No se pudieron cargar las unidades disponibles.'];
+                this.unidadesDisponibles = [];
+                this.unidadesVisibles = [];
+                this.erroresServidor = [
+                    'No se pudieron cargar las unidades disponibles.',
+                ];
                 this.cdr.detectChanges();
             },
         });
@@ -221,14 +281,18 @@ export class RetiroRecurso implements OnInit {
                 this.itemsRetiro = [];
                 this.formularioRetiro.reset({ usuarioRetira: '', motivo: '', observaciones: '' });
                 this.enviando = false;
-                this.cargarUnidades(); // las retiradas dejan de estar disponibles
-                this.cargarResumen();
-                this.cdr.detectChanges();
+                if (this.areaSeleccionadaId !== null) {
+                    this.cargarUnidades(this.areaSeleccionadaId);
+                    this.cargarResumen(this.areaSeleccionadaId);
+                }
+                this.cdr.detectChanges();   
             },
             error: (error: HttpErrorResponse | Error) => {
                 this.mostrarErrores(error);
                 this.enviando = false;
-                this.cargarUnidades(); // por si el 409 fue porque otra persona las retiró
+                if (this.areaSeleccionadaId !== null) {
+                    this.cargarUnidades(this.areaSeleccionadaId);
+                }
             },
         });
     }
