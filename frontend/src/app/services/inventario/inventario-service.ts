@@ -63,11 +63,14 @@ export class InventarioService {
     }
 
     obtenerUnidades(
-        filtros: { idRecurso?: number; disponibilidad?: string } = {}
+        filtros: { idRecurso?: number; disponibilidad?: string; idUsuarioAsignado?: number } = {}
     ): Observable<UnidadRecurso[]> {
         let params = new HttpParams();
         if (filtros.idRecurso !== undefined) params = params.set('id_recurso', filtros.idRecurso);
         if (filtros.disponibilidad) params = params.set('disponibilidad', filtros.disponibilidad);
+        if (filtros.idUsuarioAsignado !== undefined) {
+            params = params.set('id_usuario_asignado', filtros.idUsuarioAsignado);
+        }
 
         return this.http.get<UnidadRecursoApi[]>(`${this.apiUrl}/unidades/`, { params }).pipe(
             map((unidades) =>

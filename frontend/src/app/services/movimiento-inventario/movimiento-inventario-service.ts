@@ -4,6 +4,7 @@ import { Observable, catchError, map, throwError } from 'rxjs';
 import { Motivo } from '../../models/motivo.models';
 import { NuevoIngreso, ResultadoIngreso } from '../../models/ingreso.models';
 import { NuevoRetiro, ResultadoRetiro } from '../../models/retiro.models';
+import { NuevaDevolucion, ResultadoDevolucion } from '../../models/devolucion.models';
 
 // Formas que usa Django (snake_case). Solo se usan dentro de este servicio.
 interface MotivoApi {
@@ -74,6 +75,26 @@ export class MovimientoInventarioService {
         };
 
         return this.http.post<IngresoRespuestaApi>(`${this.apiUrl}/retiros/`, body).pipe(
+            map((respuesta) => ({
+                mensaje: respuesta.mensaje,
+                codigos: respuesta.unidades.map((u) => u.codigo_interno),
+            })),
+            catchError(this.handleError)
+        );
+    }
+
+    registrarDevolucion(devolucion: NuevaDevolucion): Observable<ResultadoDevolucion> {
+        const body = {
+            id_usuario_devuelve: devolucion.idUsuarioDevuelve,
+            id_usuario_registra: devolucion.idUsuarioRegistra,
+            observaciones: devolucion.observaciones,
+            unidades: devolucion.unidades.map((u) => ({
+                id_unidad_recurso: u.idUnidadRecurso,
+                estado_al_devolver: u.estadoAlDevolver,
+            })),
+        };
+
+        return this.http.post<IngresoRespuestaApi>(`${this.apiUrl}/devoluciones/`, body).pipe(
             map((respuesta) => ({
                 mensaje: respuesta.mensaje,
                 codigos: respuesta.unidades.map((u) => u.codigo_interno),
