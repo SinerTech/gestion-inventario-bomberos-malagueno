@@ -94,6 +94,11 @@ def registrar_retiro(datos):
         u.pk: u
         for u in UnidadRecurso.objects.select_for_update().filter(pk__in=ids).order_by('pk')
     }
+    
+    if not retira.activo or retira.id_rol.nombre_rol != 'bombero':
+        raise RetiroInvalido(
+            'Solo los bomberos activos pueden retirar unidades.'
+        )
 
     movimientos = []
     for item in items:

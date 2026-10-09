@@ -150,7 +150,7 @@ class AlertaView(APIView):
 
         return Response(
             {
-                "mensaje": "Novedad registrada. El supervisor la verá como alerta pendiente.",
+                "mensaje": "Novedad registrada correctamente. El administrador podrá revisarla desde la gestión de alertas.",
                 "alerta": AlertaSerializer(alerta).data,
             },
             status=status.HTTP_201_CREATED,
