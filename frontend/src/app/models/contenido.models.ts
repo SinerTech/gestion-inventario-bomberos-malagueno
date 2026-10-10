@@ -16,6 +16,8 @@ export interface Integrante {
 export interface LandingContenido {
     descripcion: string;
     valores: Valor[];
+    imagen_fondo: string;
+    imagenes: ImagenLanding[];
 }
 
 export interface QuienesSomosContenido {
@@ -45,4 +47,10 @@ export interface Contenido {
     landing: LandingContenido;
     quienesSomos: QuienesSomosContenido;
     dashboards: Record<string, DashboardContenido>;
+}
+
+export interface ImagenLanding {
+    url: string;
+    titulo: string;
+    descripcion: string;
 }
