@@ -1,13 +1,15 @@
-<section class="seccion_hero" id="hero">
+<section class="seccion_hero" id="hero" [style.--imagen-fondo]="'url(' + imagenFondo + ')'">
   <div class="hero_contenido">
     <div class="row justify-content-center">
       <div class="col-12 col-md-10 col-lg-8 text-center hero_contenido">
         <h1>
           Gestión Inteligente de <span>Inventarios</span>
         </h1>
+
         <p class="descripcion_hero">
           {{ descripcion }}
         </p>
+
         <button class="badge_hero button_c" type="button" (click)="comenzar()">
           Comenzar
         </button>
@@ -15,8 +17,73 @@
     </div>
   </div>
 </section>
+
+<section class="seccion_galeria">
+  <div class="container">
+    <div class="encabezado_galeria">
+      <div>
+        <h2 class="fs-2">Conocé nuestro cuartel</h2>
+        <p>
+          Vocación de servicio, preparación y compromiso
+          con la comunidad de Malagueño.
+        </p>
+      </div>
+
+      <div class="controles_carrusel">
+        <button type="button" class="boton_carrusel" aria-label="Ver imágenes anteriores" [disabled]="paginaActual === 0" (click)="anterior()">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+
+        <button type="button" class="boton_carrusel" aria-label="Ver imágenes siguientes" [disabled]="paginaActual >= paginasImagenes.length - 1" (click)="siguiente()">
+          <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>
+
+    @if (paginasImagenes.length > 0) {
+      <div class="row g-4">
+        @for (
+          imagen of paginasImagenes[paginaActual];
+          track imagen.url
+        ) {
+          <div class="col-12 col-md-6 col-lg-4">
+            <article class="card_galeria">
+              <div class="imagen_galeria">
+                <img [src]="imagen.url" [alt]="imagen.titulo" width="400" height="300" loading="lazy" decoding="async"/>
+              </div>
+
+              <div class="contenido_galeria">
+                <h3>{{ imagen.titulo }}</h3>
+                <p>{{ imagen.descripcion }}</p>
+              </div>
+            </article>
+          </div>
+        }
+      </div>
+
+      @if (paginasImagenes.length > 1) {
+        <div class="indicadores_carrusel">
+          @for (pagina of paginasImagenes; track $index) {
+            <button
+              type="button"
+              class="indicador_carrusel"
+              [class.activo]="paginaActual === $index"
+              [attr.aria-label]="'Ir a la página ' + ($index + 1)"
+              [attr.aria-current]="
+                paginaActual === $index ? 'true' : null
+              "
+              (click)="paginaActual = $index"
+            ></button>
+          }
+        </div>
+      }
+    }
+  </div>
+</section>
+
 <section class="seccion_info">
   <h2>¿Cómo optimiza la plataforma tu día a día?</h2>
+
   <div class="grilla_valores">
     <div class="row g-4 justify-content-center">
       @for (valor of valores; track valor.titulo) {
