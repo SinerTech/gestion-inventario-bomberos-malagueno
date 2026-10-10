@@ -7,5 +7,5 @@ import { Component } from '@angular/core';
   templateUrl: './footer.html',
 })
 export class Footer {
-  logoFooter: string = "logo/logo_full.jpg"
+  logoFooter: string = "logo/logo_full.webp"
 }

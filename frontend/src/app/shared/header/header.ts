@@ -12,7 +12,7 @@ export class Header {
   private readonly authService = inject(AuthService);
   private router = inject(Router)
 
-  logoCuartel: string = 'logo/logo_bvm.png';
+  logoCuartel: string = 'logo/logo_bvm.webp';
 
   get estaAutenticado(): boolean {
     return this.authService.estaLogueado();
