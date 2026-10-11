@@ -18,6 +18,7 @@ import { DevolucionRecurso } from './pages/dashboard/dashboard-supervisor/devolu
 import { MisRecursos } from './pages/dashboard/dashboard-operativo/mis-recursos/mis-recursos';
 import { ReportarNovedad } from './pages/dashboard/dashboard-operativo/reportar-novedad/reportar-novedad';
 import { authGuard } from './guards/auth.guard';
+import { GestionAlerta } from './pages/dashboard/dashboard-admin/gestion-alerta/gestion-alerta';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
@@ -70,6 +71,7 @@ export const routes: Routes = [
                         component: ControlInventario,
                         data: { tipoDashboard: 'administrador' },
                     },
+                    { path: 'gestion-alerta', component: GestionAlerta },
                     { path: 'registro-ingreso', component: RegistroIngreso},
                 ]
             },
