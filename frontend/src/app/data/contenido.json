@@ -171,10 +171,10 @@
           "link": "/bomberos-malagueno/dashboard-admin/gestion-proveedor"
         },
         {
-          "icono": "<bi bi-exclamation-triangle",
+          "icono": "bi bi-exclamation-triangle",
           "etiqueta": "Gestionar Alertas",
           "descripcion": "Consultar las alertas del inventario y gestionar su atención, registrando las acciones realizadas y su estado.",
-          "link": "/bomberos-malagueno/dashboard-admin/alertas"
+          "link": "/bomberos-malagueno/dashboard-admin/gestion-alerta"
         }
       ],
       "botonesFiltro": ["todos", "disponible", "en uso", "de baja"],
