@@ -1,0 +1,21 @@
+.formulario_resolucion {
+    min-width: 240px;
+    max-width: 320px;
+    text-align: left;
+}
+
+.formulario_resolucion textarea {
+    width: 100%;
+    resize: vertical;
+    background-color: #111827;
+    color: #fff;
+    border: 1px solid #374151;
+    border-radius: 5px;
+    margin-top: 10px;
+    caret-color: #ffffff;
+    border-color: rgb(161, 99, 12);
+}
+
+.formulario_resolucion textarea:focus::placeholder {
+    color: transparent;
+}

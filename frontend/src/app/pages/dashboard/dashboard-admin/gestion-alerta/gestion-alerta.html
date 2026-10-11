@@ -1,0 +1,153 @@
+<section class="seccion_panel_admin" id="gestion_alertas">
+    <h1>Gestión de Alertas</h1>
+
+    <div class="d-flex flex-wrap gap-3 mb-3">
+        <span class="badge bg-warning text-dark fs-6">Pendientes: {{ totalPendientes }}</span>
+        <span class="badge bg-success fs-6">Atendidas: {{ totalAtendidas }}</span>
+    </div>
+
+    @if (mensajeExito) {
+        <div class="alert alert-success">{{ mensajeExito }}</div>
+    }
+
+    @if (erroresServidor.length) {
+        <div class="alert alert-danger">
+            <ul class="mb-0">
+                @for (e of erroresServidor; track $index) {
+                    <li>{{ e }}</li>
+                }
+            </ul>
+        </div>
+    }
+
+    <div class="container">
+        <div class="mb-3">
+            <form class="form_panel_admin d-flex flex-column"
+                (submit)="$event.preventDefault(); buscarAlerta(buscador.value)">
+                <div class="row">
+                    <div class="col-md-8 mb-2">
+                        <label for="buscar_alerta" class="form-label fs-3 text-white">Buscar Alerta</label>
+                        <div class="d-flex gap-3 align-items-center w-100">
+                            <input id="buscar_alerta" #buscador name="buscar_alerta" class="mt-4" type="search"
+                                placeholder="Buscar por código, recurso, descripción o persona..."
+                                (search)="buscarAlerta(buscador.value)">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search me-1"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-2 text-start">
+                        <label for="filtro_tipo" class="form-label fs-3 text-white">Tipo</label>
+                        <select class="form-select mt-4" id="filtro_tipo"
+                            (change)="filtrarPorTipo($any($event.target).value)">
+                            <option value="">Todos los tipos</option>
+                            @for (t of tipos; track t) {
+                                <option [value]="t">{{ t }}</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="acciones_crud mb-3">
+            @for (boton of botonesEstado; track boton) {
+                <button type="button" class="btn btn-secondary"
+                    [class.active]="boton === filtroEstado"
+                    (click)="filtrarPorEstado(boton)">
+                    {{ boton }}
+                </button>
+            }
+        </div>
+    </div>
+
+    @if (errorListado) {
+        <div class="alert alert-danger">{{ errorListado }}</div>
+    }
+
+    <div class="table-responsive">
+        <table class="table-bordered table-hover mb-0 text-white">
+            <thead>
+                <tr>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Unidad</th>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Descripción</th>
+                    <th scope="col">Reportó</th>
+                    <th scope="col">Estado</th>
+                    <th scope="col">Atendió</th>
+                    <th scope="col">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (alerta of alertasFiltradas; track alerta.idAlerta) {
+                    <tr class="border-bottom border-white">
+                        <td>{{ alerta.fechaGenerada | date: 'dd/MM/yyyy HH:mm' }}</td>
+                        <td>
+                            {{ alerta.codigoInterno }}
+                            <small class="d-block">{{ alerta.nombreRecurso }}</small>
+                        </td>
+                        <td>{{ alerta.tipo }}</td>
+                        <td style="white-space: pre-line">{{ alerta.descripcion }}</td>
+                        <td>
+                            {{ alerta.nombreUsuarioReporta ?? 'Automática' }}
+                        </td>
+                        <td>
+                            <span class="badge" [class]="alertaClases[alerta.estadoAlerta] ?? 'bg-light text-dark'">
+                                {{ alerta.estadoAlerta }}
+                            </span>
+                        </td>
+                        <td>
+                            @if (alerta.nombreUsuarioGestiona) {
+                                {{ alerta.nombreUsuarioGestiona }}
+                                <small class="d-block">{{ alerta.fechaGestionada | date: 'dd/MM/yyyy HH:mm' }}</small>
+                            } @else {
+                                -
+                            }
+                        </td>
+                        <td>
+                            @if (alerta.estadoAlerta === 'Pendiente') {
+                            @if (alertaEnEdicion === alerta.idAlerta) {
+                            <div class="formulario_resolucion">
+                                <label [for]="'resolucion-' + alerta.idAlerta">
+                                    Detalle de la resolución (opcional)
+                                </label>
+                        
+                                <textarea class="" [id]="'resolucion-' + alerta.idAlerta" [(ngModel)]="resolucion" rows="3"
+                                    placeholder="Describí qué se hizo para atender la alerta..."></textarea>
+                        
+                                <div class="d-flex gap-2 mt-2">
+                                    <button type="button" class="btn btn-success btn-sm" [disabled]="procesando === alerta.idAlerta"
+                                        (click)="confirmarAtencion(alerta)">
+                                        Confirmar
+                                    </button>
+                        
+                                    <button type="button" class="btn btn-secondary btn-sm" (click)="cancelarAtencion()">
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                            } @else {
+                            <button type="button" title="Atender alerta" [disabled]="procesando === alerta.idAlerta" (click)="atender(alerta)">
+                                <i class="bi bi-check-circle-fill"></i>
+                            </button>
+                            }
+                            } @else {
+                            <button type="button" title="Reabrir como pendiente" [disabled]="procesando === alerta.idAlerta"
+                                (click)="reabrir(alerta)">
+                                <i class="bi bi-arrow-counterclockwise"></i>
+                            </button>
+                            }
+                        </td>
+                    </tr>
+                } @empty {
+                    <tr>
+                        <td colspan="8" class="text-center text-white py-4 fs-5">
+                            No se encontraron alertas.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
