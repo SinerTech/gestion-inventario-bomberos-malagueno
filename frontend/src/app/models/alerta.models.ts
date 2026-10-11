@@ -5,10 +5,14 @@ export interface Alerta {
     idUnidadRecurso: number;
     codigoInterno: string;
     nombreRecurso: string;
+    origen: string;
     tipo: string;
     descripcion: string;
     estadoAlerta: string;
     fechaGenerada: string;
+    nombreUsuarioReporta: string | null;
+    nombreUsuarioGestiona: string | null;
+    fechaGestionada: string | null;
 }
 
 export interface NuevaNovedad {
@@ -16,6 +20,12 @@ export interface NuevaNovedad {
     idUsuarioReporta: number;
     tipo: string;
     descripcion: string;
+}
+
+export interface GestionAlerta {
+    estadoAlerta: 'Pendiente' | 'Atendida';
+    idUsuarioGestiona: number;
+    resolucion: string | null;
 }
 
 // Deben coincidir con TIPOS_NOVEDAD del backend (movimientos/constantes.py)
