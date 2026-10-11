@@ -284,3 +284,32 @@ def registrar_novedad(datos):
         estado_alerta='Pendiente',
     )
     
+class GestionInvalida(Exception):
+    """La alerta no se puede gestionar por su estado actual."""
+    
+@transaction.atomic
+def gestionar_alerta(alerta_id, datos):
+    # Candado: dos administradores no pueden atender la misma alerta a la vez
+    alerta = Alerta.objects.select_for_update().get(pk=alerta_id)
+    nuevo_estado = datos['estado_alerta']
+
+    if alerta.estado_alerta == nuevo_estado:
+        raise GestionInvalida(f"La alerta ya está en estado {nuevo_estado}.")
+
+    if nuevo_estado == 'Atendida':
+        alerta.estado_alerta = 'Atendida'
+        alerta.id_usuario_gestiona = datos['id_usuario_gestiona']
+        alerta.fecha_gestionada = timezone.now()
+        resolucion = (datos.get('resolucion') or '').strip()
+        if resolucion:
+            alerta.observaciones = f"{alerta.observaciones or ''}\nResolución: {resolucion}".strip()
+    else:
+        # Reapertura: aqui se limpia quien y cuando la atendió
+        alerta.estado_alerta = 'Pendiente'
+        alerta.id_usuario_gestiona = None
+        alerta.fecha_gestionada = None
+
+    alerta.save(update_fields=[
+        'estado_alerta', 'id_usuario_gestiona', 'fecha_gestionada', 'observaciones',
+    ])
+    return alerta

@@ -1,9 +1,10 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from django.shortcuts import get_object_or_404
 from .models import Motivo, TipoMovimiento, Alerta
-from .serializers import MotivoSerializer, IngresoSerializer, RetiroSerializer, DevolucionSerializer, NovedadSerializer, AlertaSerializer
-from .services import registrar_ingreso, registrar_retiro, RetiroInvalido, registrar_devolucion, DevolucionInvalida, registrar_novedad, NovedadInvalida
+from .serializers import MotivoSerializer, IngresoSerializer, RetiroSerializer, DevolucionSerializer, NovedadSerializer, AlertaSerializer, GestionAlertaSerializer
+from .services import registrar_ingreso, registrar_retiro, RetiroInvalido, registrar_devolucion, DevolucionInvalida, registrar_novedad, NovedadInvalida, gestionar_alerta, GestionInvalida
 from .constantes import nombres_motivos
 
 class MotivoView(APIView):
@@ -121,7 +122,7 @@ class AlertaView(APIView):
     def get(self, request):
         alertas = (
             Alerta.objects
-            .select_related('id_unidad_recurso__id_recurso')
+            .select_related('id_unidad_recurso__id_recurso', 'id_usuario_reporta', 'id_usuario_gestiona')
             .order_by('-fecha_generada')
         )
         # Filtros opcionales: /api/alertas/?id_usuario_reporta=3&estado_alerta=Pendiente
@@ -156,3 +157,31 @@ class AlertaView(APIView):
             status=status.HTTP_201_CREATED,
         )
     
+class AlertaDetalleView(APIView):
+    def put(self, request, id_alerta):
+        # 404 si no existe
+        get_object_or_404(Alerta, pk=id_alerta)
+
+        serializer = GestionAlertaSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            alerta = gestionar_alerta(id_alerta, serializer.validated_data)
+        except GestionInvalida as e:
+            return Response({"error": str(e)}, status=status.HTTP_409_CONFLICT)
+        except Exception:
+            return Response(
+                {"error": "Ocurrió un error interno al gestionar la alerta."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        mensaje = (
+            "Alerta marcada como atendida."
+            if alerta.estado_alerta == 'Atendida'
+            else "Alerta reabierta como pendiente."
+        )
+        return Response(
+            {"mensaje": mensaje, "alerta": AlertaSerializer(alerta).data},
+            status=status.HTTP_200_OK,
+        )

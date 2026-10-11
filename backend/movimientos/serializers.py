@@ -106,12 +106,16 @@ class AlertaSerializer(serializers.ModelSerializer):
     )
     tipo = serializers.SerializerMethodField()
     descripcion = serializers.SerializerMethodField()
+    nombre_usuario_reporta = serializers.SerializerMethodField()
+    nombre_usuario_gestiona = serializers.SerializerMethodField()
 
     class Meta:
         model = Alerta
         fields = [
             'id_alerta', 'id_unidad_recurso', 'codigo_interno', 'nombre_recurso',
             'origen', 'tipo', 'descripcion', 'estado_alerta', 'fecha_generada',
+            'id_usuario_reporta', 'nombre_usuario_reporta',
+            'id_usuario_gestiona', 'nombre_usuario_gestiona', 'fecha_gestionada',
         ]
 
     def get_tipo(self, obj):
@@ -119,7 +123,22 @@ class AlertaSerializer(serializers.ModelSerializer):
 
     def get_descripcion(self, obj):
         return separar_observacion(obj.observaciones)[1]
+    
+    def get_nombre_usuario_reporta(self, obj):
+        # Las alertas automáticas no tienen quien reporta
+        return obj.id_usuario_reporta.nombre_usuario if obj.id_usuario_reporta else None
 
+    def get_nombre_usuario_gestiona(self, obj):
+        return obj.id_usuario_gestiona.nombre_usuario if obj.id_usuario_gestiona else None
+
+class GestionAlertaSerializer(serializers.Serializer):
+    estado_alerta = serializers.ChoiceField(choices=['Pendiente', 'Atendida'])
+    # Temporal: con el login saldrá de la sesión y no del body
+    id_usuario_gestiona = serializers.PrimaryKeyRelatedField(
+        queryset=Usuario.objects.filter(activo=True)
+    )
+    resolucion = serializers.CharField(max_length=300, required=False, allow_blank=True, allow_null=True)
+    
 
 class NovedadSerializer(serializers.Serializer):
     id_unidad_recurso = serializers.PrimaryKeyRelatedField(queryset=UnidadRecurso.objects.all())
