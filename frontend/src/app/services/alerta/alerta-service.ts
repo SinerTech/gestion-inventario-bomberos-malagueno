@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { Observable, catchError, map, throwError } from 'rxjs';
-import { Alerta, NuevaNovedad } from '../../models/alerta.models';
+import { Alerta, NuevaNovedad, GestionAlerta } from '../../models/alerta.models';
 
 // Forma que usa Django (snake_case). Solo se usa dentro de este servicio.
 interface AlertaApi {
@@ -9,10 +9,14 @@ interface AlertaApi {
     id_unidad_recurso: number;
     codigo_interno: string;
     nombre_recurso: string;
+    origen: string;
     tipo: string;
     descripcion: string;
     estado_alerta: string;
     fecha_generada: string;
+    nombre_usuario_reporta: string | null;
+    nombre_usuario_gestiona: string | null;
+    fecha_gestionada: string | null;
 }
 
 @Injectable({
@@ -55,11 +59,26 @@ export class AlertaService {
             idUnidadRecurso: a.id_unidad_recurso,
             codigoInterno: a.codigo_interno,
             nombreRecurso: a.nombre_recurso,
+            origen: a.origen,
             tipo: a.tipo,
             descripcion: a.descripcion,
             estadoAlerta: a.estado_alerta,
             fechaGenerada: a.fecha_generada,
+            nombreUsuarioReporta: a.nombre_usuario_reporta,
+            nombreUsuarioGestiona: a.nombre_usuario_gestiona,
+            fechaGestionada: a.fecha_gestionada,
         };
+    }
+
+    gestionarAlerta(idAlerta: number, gestion: GestionAlerta): Observable<{ mensaje: string }> {
+        const body = {
+            estado_alerta: gestion.estadoAlerta,
+            id_usuario_gestiona: gestion.idUsuarioGestiona,
+            resolucion: gestion.resolucion,
+        };
+        return this.http
+            .put<{ mensaje: string }>(`${this.apiUrl}/alertas/${idAlerta}/`, body)
+            .pipe(catchError(this.handleError));
     }
 
     private handleError(error: HttpErrorResponse) {
