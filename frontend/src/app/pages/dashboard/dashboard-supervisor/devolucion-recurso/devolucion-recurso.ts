@@ -63,7 +63,7 @@ export class DevolucionRecurso implements OnInit {
     ngOnInit(): void {
         this.usuarioService.obtenerUsuarios().subscribe({
             next: (usuarios) => {
-                this.usuarios = usuarios.filter((u) => u.activo);
+                this.usuarios = usuarios.filter((u) => u.activo && u.idRol === 3);
                 this.cdr.detectChanges();
             },
             error: (e) => console.error('Error al cargar usuarios:', e),

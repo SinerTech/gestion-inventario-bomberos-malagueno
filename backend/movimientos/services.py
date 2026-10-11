@@ -161,6 +161,12 @@ class DevolucionInvalida(Exception):
 @transaction.atomic
 def registrar_devolucion(datos):
     devuelve = datos['id_usuario_devuelve']
+    
+    if not devuelve.activo or devuelve.id_rol.nombre_rol != 'bombero':
+        raise DevolucionInvalida(
+            'Solo los bomberos activos pueden devolver unidades.'
+        )
+        
     items = datos['unidades']
     ahora = timezone.now()
     observaciones = datos.get('observaciones')
