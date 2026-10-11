@@ -5,6 +5,10 @@ import { InventarioService } from '../../services/inventario/inventario-service'
 import { ContenidoService } from '../../services/contenido/contenido-service';
 import { ResumenRecurso } from '../../models/resumen-recurso.models';
 import { UnidadRecurso } from '../../models/unidad-recurso.models';
+import { UsuarioService } from '../../services/usuario/usuario-service';
+import { AuthService } from '../../services/auth/auth-service';
+import { Area } from '../../models/area.models';
+import { Paginador } from '../paginador/paginador';
 
 // Pasa a minúsculas y quita tildes, para que "ignifugo" encuentre "Ignífugo"
 function normalizar(texto: string): string {
@@ -16,7 +20,7 @@ function normalizar(texto: string): string {
 }
 
 @Component({
-    imports: [DatePipe],
+    imports: [DatePipe, Paginador],
     selector: 'app-control-inventario',
     styleUrl: './control-inventario.css',
     templateUrl: './control-inventario.html',
@@ -40,6 +44,12 @@ export class ControlInventario implements OnInit {
     filtroDisponibilidad = 'todos';
     recursoSeleccionado: ResumenRecurso | null = null;
 
+    areas: Area[] = [];
+    filtroAreaId: number | null = null;
+
+    paginaActual = 1;
+    readonly unidadesPorPagina = 10;
+
     // Colores según el estado y la disponibilidad
     readonly estadoClases: Record<string, string> = {
         'Op-Bueno': 'bg-success',
@@ -59,6 +69,8 @@ export class ControlInventario implements OnInit {
     private inventarioService = inject(InventarioService);
     private contenidoService = inject(ContenidoService);
     private ruta = inject(ActivatedRoute);
+    private usuarioService = inject(UsuarioService);
+    private authService = inject(AuthService);
     private cdr = inject(ChangeDetectorRef);
 
     ngOnInit(): void {
@@ -76,13 +88,24 @@ export class ControlInventario implements OnInit {
             error: (e) => console.error('Error al cargar el contenido:', e),
         });
 
+        this.usuarioService.obtenerAreas().subscribe({
+            next: (areas) => {
+                this.areas = areas;
+                this.cdr.detectChanges();
+            },
+            error: (e) => console.error('Error al cargar las áreas:', e),
+        });
+        const usuario = this.authService.obtenerUsuarioActual();
+        if (tipoDashboard === 'supervisor' && usuario) {
+            this.filtroAreaId = usuario.idArea;
+        }
         this.cargarResumen();
         this.cargarUnidades();
     }
 
     cargarResumen(): void {
         this.errorResumen = '';
-        this.inventarioService.obtenerResumen().subscribe({
+        this.inventarioService.obtenerResumen({ idArea: this.filtroAreaId ?? undefined }).subscribe({
             next: (resumen) => {
                 this.resumen = resumen;
                 this.cdr.detectChanges();
@@ -97,7 +120,7 @@ export class ControlInventario implements OnInit {
 
     cargarUnidades(): void {
         this.errorUnidades = '';
-        this.inventarioService.obtenerUnidades().subscribe({
+        this.inventarioService.obtenerUnidades({ idArea: this.filtroAreaId ?? undefined }).subscribe({
             next: (unidades) => {
                 this.unidades = unidades;
                 this.aplicarFiltros();
@@ -123,6 +146,13 @@ export class ControlInventario implements OnInit {
         this.aplicarFiltros();
     }
 
+    filtrarPorArea(valor: string): void {
+        this.filtroAreaId = valor ? Number(valor) : null;
+        this.recursoSeleccionado = null; 
+        this.cargarResumen();
+        this.cargarUnidades();
+    }
+
     verUnidadesDe(recurso: ResumenRecurso): void {
         this.recursoSeleccionado = recurso;
         this.aplicarFiltros();
@@ -134,8 +164,18 @@ export class ControlInventario implements OnInit {
         this.aplicarFiltros();
     }
 
+    get unidadesPagina(): UnidadRecurso[] {
+        const inicio = (this.paginaActual - 1) * this.unidadesPorPagina;
+        return this.unidadesFiltradas.slice(inicio, inicio + this.unidadesPorPagina);
+    }
+
+    cambiarPagina(pagina: number): void {
+        this.paginaActual = pagina;
+    }
+
     // Aplica los tres filtros juntos sobre lo ya cargado (sin pedir nada al backend)
     private aplicarFiltros(): void {
+        this.paginaActual = 1;
         const termino = normalizar(this.terminoBusqueda);
 
         this.unidadesFiltradas = this.unidades.filter((u) => {

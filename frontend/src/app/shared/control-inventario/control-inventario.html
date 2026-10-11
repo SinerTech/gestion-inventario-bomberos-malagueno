@@ -1,6 +1,24 @@
 <section class="seccion_panel_admin" id="control_inventario">
     <h1>Control de Inventario</h1>
-
+    <div class="form_panel_admin mb-3">
+        <div class="row">
+            <div class="col-md-6 text-start">
+                <label for="filtro_area" class="form-label">Área</label>
+                <select class="form-select" id="filtro_area"
+                    (change)="filtrarPorArea($any($event.target).value)">
+                    <option value="" [selected]="filtroAreaId === null">Todas las áreas</option>
+                    @for (a of areas; track a.idArea) {
+                        <option [value]="a.idArea" [selected]="a.idArea === filtroAreaId">
+                            {{ a.nombreArea }}
+                        </option>
+                    }
+                </select>
+                @if (filtroAreaId !== null) {
+                    <small>Mostrando solo los recursos de categorías habilitadas para esta área.</small>
+                }
+            </div>
+        </div>
+    </div>
     <!-- ========== Tabla 1: resumen por recurso ========== -->
     <h2 class="mt-4">Resumen por recurso</h2>
 
@@ -8,6 +26,7 @@
         <div class="alert alert-danger">{{ errorResumen }}</div>
     }
 
+    
     <div class="table-responsive">
         <table class="table-bordered table-hover mb-0 text-white">
             <thead>
@@ -119,7 +138,7 @@
                 </tr>
             </thead>
             <tbody>
-                @for (unidad of unidadesFiltradas; track unidad.idUnidadRecurso) {
+                @for (unidad of unidadesPagina; track unidad.idUnidadRecurso) {
                     <tr class="border-bottom border-white">
                         <td>{{ unidad.idUnidadRecurso }}</td>
                         <td>{{ unidad.codigoInterno }}</td>
@@ -155,4 +174,9 @@
             </tbody>
         </table>
     </div>
+    <app-paginador
+        [paginaActual]="paginaActual"
+        [totalElementos]="unidadesFiltradas.length"
+        [elementosPorPagina]="unidadesPorPagina"
+        (paginaCambiada)="cambiarPagina($event)" />
 </section>
