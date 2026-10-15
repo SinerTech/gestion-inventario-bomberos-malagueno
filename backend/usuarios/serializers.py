@@ -54,4 +54,10 @@ class UsuarioSerializer(serializers.ModelSerializer):
         if 'password' in validated_data:
             validated_data['password'] = make_password(validated_data['password'])
         return super().update(instance, validated_data)
-    
+
+class PrimerAdministradorSerializer(UsuarioSerializer):
+    class Meta(UsuarioSerializer.Meta):
+        # El rol y el área los asigna el servidor
+        fields = ['id_usuario', 'nombre_usuario', 'email_usuario', 'password']
+        read_only_fields = ['id_usuario']
+        

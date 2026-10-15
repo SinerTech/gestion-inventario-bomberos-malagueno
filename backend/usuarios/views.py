@@ -4,7 +4,8 @@ from rest_framework.views import APIView as ApiView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Rol, Area, Usuario
-from .serializers import UsuarioSerializer, RolSerializer, AreaSerializer
+from .serializers import UsuarioSerializer, RolSerializer, AreaSerializer, PrimerAdministradorSerializer
+from .services import requiere_setup, crear_primer_administrador, SetupYaRealizado
 
 class UsuarioView(ApiView):
     def get(self, request):
@@ -107,3 +108,38 @@ class LoginView(ApiView):
             status=status.HTTP_200_OK,
         )
     
+class SetupEstadoView(ApiView):
+    def get(self, request):
+        return Response({"requiere_setup": requiere_setup()})
+
+
+class SetupAdministradorView(ApiView):
+    def post(self, request):
+        # Chequeo rápido para no validar datos si ya no corresponde
+        if not requiere_setup():
+            return Response(
+                {"error": "El registro inicial ya no está disponible."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        serializer = PrimerAdministradorSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            crear_primer_administrador(serializer)
+        except SetupYaRealizado:
+            return Response(
+                {"error": "El registro inicial ya no está disponible."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+        except Exception:
+            return Response(
+                {"error": "Ocurrió un error interno al crear el administrador."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        return Response(
+            {"mensaje": "Administrador creado correctamente. Ya podés iniciar sesión."},
+            status=status.HTTP_201_CREATED,
+        )
