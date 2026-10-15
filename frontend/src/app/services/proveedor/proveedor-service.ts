@@ -12,6 +12,12 @@ interface ProveedorApi {
     email_proveedor: string | null;
 }
 
+interface ModificarProveedorRespuesta {
+    mensaje: string;
+    proveedor: ProveedorApi;
+}
+
+
 export interface RegistroProveedorRespuesta {
     mensaje: string;
     proveedor: ProveedorApi;
@@ -50,6 +56,18 @@ export class ProveedorService {
         return this.http.post<RegistroProveedorRespuesta>(`${this.apiUrl}/proveedores/`, body).pipe(
             catchError(this.handleError)
         );
+    }
+
+    modificar(idProveedor: number, proveedor: Omit<Proveedor, 'idProveedor'>): Observable<ModificarProveedorRespuesta> {
+        const body = {
+            razon_social: proveedor.razonSocial,
+            cuit: proveedor.cuit,
+            telefono_proveedor: proveedor.telefonoProveedor,
+            email_proveedor: proveedor.emailProveedor,
+        };
+        return this.http
+            .put<ModificarProveedorRespuesta>(`${this.apiUrl}/proveedores/${idProveedor}/`, body)
+            .pipe(catchError(this.handleError));
     }
 
     private handleError(error: HttpErrorResponse) {

@@ -23,6 +23,9 @@ export class GestionProveedor implements OnInit {
     mostrarFormulario = false;
     mensajeExito = '';
     erroresServidor: string[] = [];
+    modoEdicion = false;
+    idProveedorEditar: number | null = null;
+
 
     // Listado
     proveedores: Proveedor[] = [];
@@ -30,10 +33,8 @@ export class GestionProveedor implements OnInit {
     terminoBusqueda = '';
     errorListado = '';
 
-    // Hardcodeado
     accionesTabla = [
-        { icono: 'bi bi-pencil-fill' },
-        { icono: 'bi bi-trash-fill' },
+        { id: 'editar', icono: 'bi bi-pencil-fill', titulo: 'Modificar proveedor' },
     ];
 
     private fb = inject(FormBuilder);
@@ -92,25 +93,42 @@ export class GestionProveedor implements OnInit {
         );
     }
 
-    // Por ahora solo identifica la acción; la lógica llega en las HU de editar y eliminar
-    ejecutarAccion(icono: string, proveedor: Proveedor): void {
-        switch (icono) {
-            case 'bi bi-pencil-fill':
-                console.log('Modificar proveedor:', proveedor);
-                break;
-            case 'bi bi-trash-fill':
-                console.log('Eliminar proveedor:', proveedor);
-                break;
-        }
+    ejecutarAccion(idAccion: string, proveedor: Proveedor): void {
+        if (idAccion === 'editar') this.iniciarEdicion(proveedor);
+    }
+
+    iniciarEdicion(proveedor: Proveedor): void {
+        this.modoEdicion = true;
+        this.idProveedorEditar = proveedor.idProveedor;
+        this.mostrarFormulario = true;
+        this.mensajeExito = '';
+        this.erroresServidor = [];
+
+        this.formularioRegistroNuevoProveedor.reset({
+            razonSocial: proveedor.razonSocial,
+            cuit: proveedor.cuit,
+            telefono: proveedor.telefonoProveedor ?? '',
+            email: proveedor.emailProveedor ?? '',
+        });
+
+        this.cdr.detectChanges();
+        setTimeout(() =>
+            document.getElementById('formulario_proveedor')
+                ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        );
     }
 
     alternarFormulario(): void {
-        this.mostrarFormulario = !this.mostrarFormulario;
+        if (this.mostrarFormulario) {
+            this.cerrarFormulario();
+        } else {
+            this.mostrarFormulario = true;
+        }
         this.mensajeExito = '';
         this.erroresServidor = [];
     }
 
-    registrarNuevoProveedor(): void {
+    guardarProveedor(): void {
         if (this.formularioRegistroNuevoProveedor.invalid) {
             this.formularioRegistroNuevoProveedor.markAllAsTouched();
             return;
@@ -118,31 +136,41 @@ export class GestionProveedor implements OnInit {
         this.mensajeExito = '';
         this.erroresServidor = [];
 
-        const nuevoProveedor = {
+        const datos = {
             razonSocial: this.RazonSocial?.value,
             cuit: this.Cuit?.value,
-            // los campos opcionales vacíos se envían como null
             telefonoProveedor: this.Telefono?.value || null,
             emailProveedor: this.Email?.value || null,
         };
 
-        this.proveedorService.registrarProveedor(nuevoProveedor).subscribe({
+        const peticion =
+            this.modoEdicion && this.idProveedorEditar !== null
+                ? this.proveedorService.modificar(this.idProveedorEditar, datos)
+                : this.proveedorService.registrarProveedor(datos);
+
+        peticion.subscribe({
             next: (respuesta) => {
                 this.mensajeExito = respuesta.mensaje;
-                this.formularioRegistroNuevoProveedor.reset();
-                this.mostrarFormulario = false;
-                this.cargarProveedores(); // refresca la tabla con el proveedor nuevo
+                this.cerrarFormulario();
+                this.cargarProveedores();
                 this.cdr.detectChanges();
             },
             error: (error: HttpErrorResponse | Error) => {
-                if (error instanceof HttpErrorResponse) {
-                    // Django devuelve { campo: ["mensaje", ...] } al fallar una validación
-                    this.erroresServidor = Object.values(error.error).flat().map(String);
-                } else {
-                    this.erroresServidor = [error.message];
-                }
+                this.erroresServidor =
+                    error instanceof HttpErrorResponse
+                        ? Object.values(error.error).flat().map(String)
+                        : [error.message];
                 this.cdr.detectChanges();
             },
+        });
+    }
+
+    private cerrarFormulario(): void {
+        this.mostrarFormulario = false;
+        this.modoEdicion = false;
+        this.idProveedorEditar = null;
+        this.formularioRegistroNuevoProveedor.reset({
+            razonSocial: '', cuit: '', telefono: '', email: '',
         });
     }
 

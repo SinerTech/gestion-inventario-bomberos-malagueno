@@ -14,8 +14,10 @@
     }
 
     @if (mostrarFormulario) {
-        <div class="p-4 mb-4">
-            <h2 class="h4 mb-3">Registrar nuevo proveedor</h2>
+        <div class="p-4 mb-4" id="formulario_proveedor">
+            <h2 class="h4 mb-3">
+                {{ modoEdicion ? 'Modificar proveedor' : 'Registrar nuevo proveedor' }}
+            </h2>
 
             @if (erroresServidor.length) {
                 <div class="alert alert-danger">
@@ -28,7 +30,7 @@
             }
 
             <form class="form_panel_admin" [formGroup]="formularioRegistroNuevoProveedor"
-                (ngSubmit)="registrarNuevoProveedor()">
+                (ngSubmit)="guardarProveedor()">
                 <div class="row">
                     <div class="col-md-8 mb-2 text-start">
                         <label for="razonSocial" class="form-label">Razón social</label>
@@ -66,9 +68,9 @@
                         <div class="invalid-feedback">Ingresá un email válido.</div>
                     </div>
 
-                    <div class="acciones_crud">
-                        <button type="submit" class="btn btn-primary">Registrar proveedor</button>
-                    </div>
+                    <button type="submit" class="btn btn-primary">
+                        {{ modoEdicion ? 'Guardar cambios' : 'Registrar proveedor' }}
+                    </button>
                 </div>
             </form>
         </div>
@@ -126,8 +128,9 @@
                         <td>{{ proveedor.telefonoProveedor || '-' }}</td>
                         <td>{{ proveedor.emailProveedor || '-' }}</td>
                         <td class="d-flex flex-row gap-2">
-                            @for (accion of accionesTabla; track accion.icono) {
-                                <button type="button" (click)="ejecutarAccion(accion.icono, proveedor)">
+                            @for (accion of accionesTabla; track accion.id) {
+                                <button type="button" [title]="accion.titulo"
+                                    (click)="ejecutarAccion(accion.id, proveedor)">
                                     <i [class]="accion.icono"></i>
                                 </button>
                             }
