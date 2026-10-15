@@ -1,0 +1,124 @@
+<section class="login-page">
+    <div class="login-overlay"></div>
+    <div class="login-layout">
+        <div class="login-presentacion">
+            <span class="login-etiqueta">CONFIGURACIÓN INICIAL</span>
+            <h1>Bomberos Voluntarios de Malagueño</h1>
+            <p>
+                Todavía no hay usuarios en el sistema. Creá la cuenta del
+                administrador: desde ella vas a gestionar al resto del personal.
+            </p>
+        </div>
+
+        <div class="login-card">
+            <div class="login-encabezado">
+                <div class="login-icono">
+                    <i class="bi bi-person-gear"></i>
+                </div>
+                <h2>Crear administrador</h2>
+                <p>Este registro solo está disponible una vez.</p>
+            </div>
+
+            @if (verificando) {
+                <p role="status" class="text-center">Verificando...</p>
+            } @else {
+                <form [formGroup]="formulario" (ngSubmit)="registrar()" class="d-flex flex-column" novalidate>
+
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre completo</label>
+                        <div class="login-input-group">
+                            <i class="bi bi-person"></i>
+                            <input id="nombre" type="text" class="form-control" formControlName="nombre"
+                                placeholder="Nombre y apellido" autocomplete="name"
+                                [class.is-invalid]="Nombre?.invalid && Nombre?.touched" />
+                        </div>
+                        @if (Nombre?.invalid && Nombre?.touched) {
+                            <div class="invalid-feedback d-block">
+                                El nombre es obligatorio (máx. 50 caracteres).
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Correo electrónico</label>
+                        <div class="login-input-group">
+                            <i class="bi bi-envelope"></i>
+                            <input id="email" type="email" class="form-control" formControlName="email"
+                                placeholder="nombre@correo.com" autocomplete="username"
+                                [class.is-invalid]="Email?.invalid && Email?.touched" />
+                        </div>
+                        @if (Email?.hasError('required') && Email?.touched) {
+                            <div class="invalid-feedback d-block">El correo electrónico es obligatorio.</div>
+                        }
+                        @if (Email?.hasError('email') && Email?.touched) {
+                            <div class="invalid-feedback d-block">Ingresá un correo electrónico válido.</div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Contraseña</label>
+                        <div class="login-input-group">
+                            <i class="bi bi-lock"></i>
+                            <input id="password" type="password" class="form-control" formControlName="password"
+                                placeholder="Creá una contraseña" autocomplete="new-password"
+                                [class.is-invalid]="Password?.invalid && Password?.touched" />
+                        </div>
+                        @if (Password?.invalid && Password?.touched) {
+                            <div class="invalid-feedback d-block">
+                                Mínimo 8 caracteres, con mayúscula, minúscula y número.
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="confirmarPassword" class="form-label">Confirmar contraseña</label>
+                        <div class="login-input-group">
+                            <i class="bi bi-lock-fill"></i>
+                            <input id="confirmarPassword" type="password" class="form-control"
+                                formControlName="confirmarPassword"
+                                placeholder="Repetí la contraseña" autocomplete="new-password"
+                                [class.is-invalid]="ConfirmarPassword?.touched &&
+                                    (ConfirmarPassword?.invalid || formulario.errors?.['noCoinciden'])" />
+                        </div>
+                        @if (ConfirmarPassword?.touched &&
+                             (ConfirmarPassword?.invalid || formulario.errors?.['noCoinciden'])) {
+                            <div class="invalid-feedback d-block">Las contraseñas no coinciden.</div>
+                        }
+                    </div>
+
+                    @if (mensajeExito) {
+                        <div class="alert alert-success py-2" role="alert">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {{ mensajeExito }}
+                        </div>
+                    }
+
+                    @if (erroresServidor.length) {
+                        <div class="alert alert-danger py-2" role="alert">
+                            <i class="bi bi-exclamation-circle me-2"></i>
+                            @for (e of erroresServidor; track $index) {
+                                <div>{{ e }}</div>
+                            }
+                        </div>
+                    }
+
+                    <button type="submit" class="btn btn-primary login-boton mt-2"
+                        [disabled]="enviando || !!mensajeExito">
+                        @if (enviando) {
+                            <span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>
+                            Creando...
+                        } @else {
+                            Crear administrador
+                            <i class="bi bi-arrow-right ms-2"></i>
+                        }
+                    </button>
+                </form>
+            }
+
+            <div class="login-pie">
+                <i class="bi bi-shield-check me-1"></i>
+                Esta cuenta tendrá acceso total al sistema.
+            </div>
+        </div>
+    </div>
+</section>

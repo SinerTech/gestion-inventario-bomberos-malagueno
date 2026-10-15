@@ -19,10 +19,12 @@ import { MisRecursos } from './pages/dashboard/dashboard-operativo/mis-recursos/
 import { ReportarNovedad } from './pages/dashboard/dashboard-operativo/reportar-novedad/reportar-novedad';
 import { authGuard } from './guards/auth.guard';
 import { GestionAlerta } from './pages/dashboard/dashboard-admin/gestion-alerta/gestion-alerta';
+import { RegistroInicial } from './auth/registro-inicial/registro-inicial';
 
 export const routes: Routes = [
     { path: '', redirectTo: 'bomberos-malagueno/landing-page', pathMatch: 'full' },
     { path: 'login', component: Login },
+    { path: 'registro-inicial', component: RegistroInicial },
     {
         path: 'bomberos-malagueno',
         component: MainLayout,

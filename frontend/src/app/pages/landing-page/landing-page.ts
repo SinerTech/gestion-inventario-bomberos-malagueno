@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth/auth-service';
 import { ContenidoService } from '../../services/contenido/contenido-service';
 import { ImagenLanding, Valor } from '../../models/contenido.models';
+import { SetupService } from '../../services/setup/setup-service';
 
 @Component({
   imports: [],
@@ -15,6 +16,7 @@ export class LandingPage implements OnInit {
   private readonly authService = inject(AuthService);
   private readonly contenidoService = inject(ContenidoService);
   private cdr = inject(ChangeDetectorRef);
+  private readonly setupService = inject(SetupService);
 
   descripcion = '';
   valores: Valor[] = [];
@@ -44,14 +46,16 @@ export class LandingPage implements OnInit {
 
   comenzar(): void {
     const usuario = this.authService.obtenerUsuarioActual();
-
-    if (!usuario) {
-      this.router.navigate(['/login']);
-      return;
+    if (usuario) {
+        this.router.navigate([this.authService.obtenerRutaDashboard(usuario)]);
+        return;
     }
 
-    // Reutiliza el mapeo rol -> dashboard que ya existe en AuthService
-    this.router.navigate([this.authService.obtenerRutaDashboard(usuario)]);
+    // Sin sesión: si todavía no hay usuarios, se deriva al registro inicial
+    this.setupService.requiereSetup().subscribe({
+        next: (requiere) => this.router.navigate([requiere ? '/registro-inicial' : '/login']),
+        error: () => this.router.navigate(['/login']), // si falla la consulta, login por defecto
+    });
   }
 
   private actualizarPaginasImagenes(): void {

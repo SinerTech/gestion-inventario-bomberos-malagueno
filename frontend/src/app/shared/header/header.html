@@ -25,10 +25,17 @@
                     </li>
                     @if (!estaAutenticado) {
                         <li>
-                            <a routerLink="/login">
-                                <i class="bi bi-box-arrow-in-right"></i>
-                                <span>Login</span>
-                            </a>
+                            @if (requiereSetup) {
+                                <a routerLink="/registro-inicial">
+                                    <i class="bi bi-person-plus-fill"></i>
+                                    <span>Registrarse</span>
+                                </a>
+                            } @else {
+                                <a routerLink="/login">
+                                    <i class="bi bi-box-arrow-in-right"></i>
+                                    <span>Login</span>
+                                </a>
+                            }
                         </li>
                     }
                     }
