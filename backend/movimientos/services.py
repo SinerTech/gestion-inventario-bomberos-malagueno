@@ -2,7 +2,7 @@ from django.db import transaction
 from django.utils import timezone
 from inventario.models import Recurso, UnidadRecurso, AreaCategoria
 from .models import MovimientoInventario, TipoMovimiento, Alerta
-from .constantes import componer_observacion
+from .constantes import componer_observacion, estado_empeoro
 
 def _generar_codigos(recurso, cantidad):
     # Formato: R0007-0001 (recurso 7, unidad 1). Continúa la numeración existente
@@ -189,6 +189,7 @@ def registrar_devolucion(datos):
     }
 
     movimientos = []
+    alertas_nuevas = []
     for item in items:
         unidad = unidades[item['id_unidad_recurso'].pk]
 
@@ -209,6 +210,7 @@ def registrar_devolucion(datos):
             )
 
         estado = item['estado_al_devolver']
+        estado_previo = movimiento.estado_al_retirar 
 
         # Cierre del movimiento de retiro
         movimiento.estado_al_devolver = estado
@@ -219,6 +221,9 @@ def registrar_devolucion(datos):
                 f"{previas}\nDevolución: {observaciones}" if previas else f"Devolución: {observaciones}"
             )
         movimientos.append(movimiento)
+        
+        if estado_empeoro(estado_previo, estado):
+            alertas_nuevas.append((unidad, movimiento, estado_previo, estado))
 
         # La unidad vuelve a estar libre
         unidad.disponibilidad = 'Disponible'
@@ -231,7 +236,27 @@ def registrar_devolucion(datos):
     MovimientoInventario.objects.bulk_update(
         movimientos, ['estado_al_devolver', 'fecha_hora_devolucion', 'observaciones']
     )
+    for unidad, movimiento, antes, despues in alertas_nuevas:
+        ya_pendiente = Alerta.objects.filter(
+            id_unidad_recurso=unidad, origen='Automatica', estado_alerta='Pendiente'
+        ).exists()
+        if ya_pendiente:
+            continue  
 
+    Alerta.objects.create(
+        id_unidad_recurso=unidad,
+        origen='Automatica',
+        id_movimiento=movimiento,          
+        id_usuario_reporta=None,           
+        fecha_generada=ahora,
+        observaciones=componer_observacion(
+            'Mantenimiento',
+            f"El estado empeoró de {antes} a {despues} durante el retiro "
+            f"de {devuelve.nombre_usuario}.",
+        ),
+        estado_alerta='Pendiente',
+    )
+    
     return list(unidades.values())
 
 class NovedadInvalida(Exception):
