@@ -34,6 +34,27 @@ class ProveedorView(APIView):
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class ProveedorDetalleView(APIView):
+    def obtener_proveedor(self, id_proveedor):
+        return get_object_or_404(Proveedor, pk=id_proveedor)
+
+    def put(self, request, id_proveedor):
+        proveedor = self.obtener_proveedor(id_proveedor)
+        serializer = ProveedorSerializer(proveedor, data=request.data)  # sin partial
+        if serializer.is_valid():
+            try:
+                serializer.save()
+            except Exception:
+                return Response(
+                    {"error": "Ocurrió un error interno al modificar el proveedor."},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                )
+            return Response(
+                {"mensaje": "Proveedor modificado correctamente.", "proveedor": serializer.data},
+                status=status.HTTP_200_OK,
+            )
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoriaView(APIView):
     def get(self, request):

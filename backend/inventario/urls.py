@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import ProveedorView, CategoriaView, TipoMaterialView, RecursoView, RecursoDetalleView, ResumenInventarioView, UnidadRecursoView
+from .views import ProveedorView, ProveedorDetalleView, CategoriaView, TipoMaterialView, RecursoView, RecursoDetalleView, ResumenInventarioView, UnidadRecursoView
 
 urlpatterns = [
     path('proveedores/', ProveedorView.as_view()),
+    path('proveedores/<int:id_proveedor>/', ProveedorDetalleView.as_view()),
     path('categorias/', CategoriaView.as_view()),
     path('tipos-material/', TipoMaterialView.as_view()),
     path('recursos/', RecursoView.as_view()),
