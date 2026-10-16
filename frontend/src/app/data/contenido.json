@@ -162,7 +162,7 @@
           "icono": "bi-boxes",
           "etiqueta": "Control de Inventario",
           "descripcion": "Consultar cuántas unidades hay de cada recurso y el estado de cada una.",
-          "link": "/bomberos-malagueno/dashboard-supervisor/control-inventario"
+          "link": "/bomberos-malagueno/dashboard-admin/control-inventario"
         },
         {
           "icono": "bi-truck",
