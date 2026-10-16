@@ -1,59 +1,63 @@
-# Frontend
+# Frontend — Bomberos de Malagueño
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.5.
+Aplicación web del sistema de gestión de inventario interno del Cuartel de Bomberos Voluntarios de Malagueño.
 
-## Development server
+## Tecnologías
 
-To start a local development server, run:
+* Angular 22
+* TypeScript
+* Bootstrap
+* Bootstrap Icons
+* Angular Router
+* HttpClient
 
-```bash
-ng serve
-```
+## Requisitos previos
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+* Node.js y npm
+* Angular CLI
 
-## Code scaffolding
+Para comprobar que están instalados, ejecutá:
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+**node -v**
+**npm -v**
+**ng version**
 
-```bash
-ng generate component component-name
-```
+## Instalación
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+Ubicate en la carpeta del frontend:
 
-```bash
-ng generate --help
-```
+**cd frontend**
 
-## Building
+Instalá las dependencias del proyecto:
 
-To build the project run:
+**npm install**
 
-```bash
-ng build
-```
+## Configuración del backend
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+El frontend consume la API REST desarrollada con Django. Antes de probar las funcionalidades que requieren acceso a datos, verificá que el backend esté iniciado y que la configuración de conexión de la API coincida con la dirección donde se ejecuta.
 
-## Running unit tests
+En el entorno de desarrollo, el frontend utiliza http://localhost:4200/ y el backend utiliza http://localhost:8000/, salvo que se haya configurado otra dirección.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## Ejecución en desarrollo
 
-```bash
-ng test
-```
+Desde la carpeta frontend, ejecutá:
 
-## Running end-to-end tests
+**ng serve**
 
-For end-to-end (e2e) testing, run:
+Abrí http://localhost:4200/ en el navegador.
 
-```bash
-ng e2e
-```
+La aplicación se recargará automáticamente cuando se detecten cambios en los archivos fuente.
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+También podés ejecutar:
 
-## Additional Resources
+**ng serve -o**
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+para abrir el navegador automáticamente.
+
+## Compilación
+
+Para compilar el proyecto:
+
+**ng build**
+
+Los archivos generados se almacenan en la carpeta dist/.
